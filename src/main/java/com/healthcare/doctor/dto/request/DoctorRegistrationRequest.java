@@ -1,6 +1,8 @@
 
 package com.healthcare.doctor.dto.request;
 
+import com.healthcare.doctor.constants.DoctorConstants;
+
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -14,24 +16,26 @@ import java.time.LocalDate;
 @Builder
 public class DoctorRegistrationRequest {
 
-    @NotNull(message = "Identity user ID is required")
+    @NotNull(message = DoctorConstants.IDENTITY_USER_ID_REQUIRED)
     private Long identityUserId;
 
-    @NotBlank(message = "First name is required")
+    @NotBlank(message = DoctorConstants.FIRST_NAME_REQUIRED)
     @Size(max = 100)
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
+    @NotBlank(message = DoctorConstants.LAST_NAME_REQUIRED)
     @Size(max = 100)
     private String lastName;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = DoctorConstants.EMAIL_REQUIRED)
+    @Email(message = DoctorConstants.INVALID_EMAIL_FORMAT)
     private String email;
 
-    @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^[0-9]{10,15}$",
-            message = "Phone number must contain 10 to 15 digits")
+    @NotBlank(message = DoctorConstants.PHONE_NUMBER_REQUIRED)
+    @Pattern(
+            regexp = "^[0-9]{10,15}$",
+            message = DoctorConstants.INVALID_PHONE_NUMBER
+    )
     private String phoneNumber;
 
     private LocalDate dateOfBirth;
@@ -40,14 +44,19 @@ public class DoctorRegistrationRequest {
 
     private Long specializationId;
 
-    @NotBlank(message = "License number is required")
+    @NotBlank(message = DoctorConstants.LICENSE_NUMBER_REQUIRED)
     private String licenseNumber;
 
-    @Min(value = 0, message = "Experience cannot be negative")
+    @Min(
+            value = 0,
+            message = DoctorConstants.INVALID_EXPERIENCE
+    )
     private Integer yearsOfExperience;
 
-    @DecimalMin(value = "0.0",
-            message = "Consultation fee cannot be negative")
+    @DecimalMin(
+            value = "0.0",
+            message = DoctorConstants.DOCTOR_INVALID_CONSULTATION_FEE
+    )
     private BigDecimal consultationFee;
 
     private String profileImageUrl;

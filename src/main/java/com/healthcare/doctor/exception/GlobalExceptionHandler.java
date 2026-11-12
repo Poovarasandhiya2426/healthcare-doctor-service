@@ -1,9 +1,12 @@
 
 package com.healthcare.doctor.exception;
 
+import com.healthcare.doctor.constants.DoctorConstants;
 import com.healthcare.doctor.dto.response.ApiResponse;
 
 import jakarta.validation.ConstraintViolationException;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -22,8 +26,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(
             ResourceNotFoundException exception) {
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(exception.getMessage()));
     }
 
@@ -32,8 +35,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleDuplicateResource(
             DuplicateResourceException exception) {
 
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(exception.getMessage()));
     }
 
@@ -42,8 +44,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleBadRequest(
             BadRequestException exception) {
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(exception.getMessage()));
     }
 
@@ -59,8 +60,11 @@ public class GlobalExceptionHandler {
                         + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+        if (message.isBlank()) {
+            message = DoctorConstants.VALIDATION_FAILED;
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(message));
     }
 
@@ -69,9 +73,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(
             ConstraintViolationException exception) {
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(exception.getMessage()));
+        String message = exception.getConstraintViolations()
+                .stream()
+                .map(violation -> violation.getPropertyPath()
+                        + ": " + violation.getMessage())
+                .collect(Collectors.joining(", "));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(
+                        message.isBlank()
+                                ? DoctorConstants.VALIDATION_FAILED
+                                : message));
     }
 
     // Handle Database Constraint Violations - 409
@@ -79,10 +91,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(
             DataIntegrityViolationException exception) {
 
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
+        log.error("Database constraint violation occurred", exception);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(
-                        "Database constraint violation occurred"));
+                        DoctorConstants.DATABASE_CONSTRAINT_VIOLATION));
     }
 
     // Handle Unexpected Exceptions - 500
@@ -90,9 +103,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(
             Exception exception) {
 
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        log.error("Unexpected application error occurred", exception);
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(
-                        "An unexpected error occurred"));
+                        DoctorConstants.UNEXPECTED_ERROR));
     }
 }

@@ -196,6 +196,40 @@ public final class DoctorConstants {
     public static final String HOSPITAL_MAPPING_DEACTIVATED =
             "Doctor hospital mapping deactivated successfully";
 
+    // Doctor validation messages
+    public static final String FIRST_NAME_REQUIRED = "First name is required";
+    public static final String LAST_NAME_REQUIRED = "Last name is required";
+    public static final String EMAIL_REQUIRED = "Email is required";
+    public static final String INVALID_EMAIL_FORMAT = "Invalid email format";
+    public static final String PHONE_NUMBER_REQUIRED = "Phone number is required";
+    public static final String INVALID_PHONE_NUMBER = "Invalid phone number";
+    public static final String INVALID_EXPERIENCE = "Years of experience cannot be negative";
+
+    public static final String DOCTOR_INVALID_CONSULTATION_FEE =
+            "Doctor consultation fee cannot be negative";
+
+
+    // Doctor validation messages
+    public static final String IDENTITY_USER_ID_REQUIRED =
+            "Identity user ID is required";
+
+
+    public static final String LICENSE_NUMBER_REQUIRED =
+            "License number is required";
+
+
+    public static final String ACTIVE_SPECIALIZATION_NOT_FOUND =
+            "Active specialization not found";
+
+
+    public static final String DATABASE_CONSTRAINT_VIOLATION =
+            "Database constraint violation occurred";
+
+    public static final String UNEXPECTED_ERROR =
+            "An unexpected error occurred";
+
+    public static final String VALIDATION_FAILED =
+            "Request validation failed";
 
 
 }

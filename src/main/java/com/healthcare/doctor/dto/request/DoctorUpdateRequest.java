@@ -1,6 +1,8 @@
 
 package com.healthcare.doctor.dto.request;
 
+import com.healthcare.doctor.constants.DoctorConstants;
+
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -14,21 +16,23 @@ import java.time.LocalDate;
 @Builder
 public class DoctorUpdateRequest {
 
-    @NotBlank(message = "First name is required")
+    @NotBlank(message = DoctorConstants.FIRST_NAME_REQUIRED)
     @Size(max = 100)
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
+    @NotBlank(message = DoctorConstants.LAST_NAME_REQUIRED)
     @Size(max = 100)
     private String lastName;
 
-    @Email(message = "Invalid email format")
-    @NotBlank(message = "Email is required")
+    @Email(message = DoctorConstants.INVALID_EMAIL_FORMAT)
+    @NotBlank(message = DoctorConstants.EMAIL_REQUIRED)
     private String email;
 
-    @Pattern(regexp = "^[0-9]{10,15}$",
-            message = "Invalid phone number")
-    @NotBlank(message = "Phone number is required")
+    @Pattern(
+            regexp = "^[0-9]{10,15}$",
+            message = DoctorConstants.INVALID_PHONE_NUMBER
+    )
+    @NotBlank(message = DoctorConstants.PHONE_NUMBER_REQUIRED)
     private String phoneNumber;
 
     private LocalDate dateOfBirth;
@@ -37,10 +41,16 @@ public class DoctorUpdateRequest {
 
     private Long specializationId;
 
-    @Min(value = 0)
+    @Min(
+            value = 0,
+            message = DoctorConstants.INVALID_EXPERIENCE
+    )
     private Integer yearsOfExperience;
 
-    @DecimalMin(value = "0.0")
+    @DecimalMin(
+            value = "0.0",
+            message = DoctorConstants.DOCTOR_INVALID_CONSULTATION_FEE
+    )
     private BigDecimal consultationFee;
 
     private String profileImageUrl;

@@ -1,6 +1,7 @@
 
 package com.healthcare.doctor.mapper;
 
+import com.healthcare.doctor.constants.DoctorConstants;
 import com.healthcare.doctor.dto.request.DoctorRegistrationRequest;
 import com.healthcare.doctor.dto.request.DoctorUpdateRequest;
 import com.healthcare.doctor.dto.response.DoctorResponse;
@@ -124,8 +125,8 @@ public class DoctorMapper {
                 .filter(specialization ->
                         Boolean.TRUE.equals(specialization.getActive()))
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Active specialization not found with ID: "
-                                + specializationId));
+                        DoctorConstants.ACTIVE_SPECIALIZATION_NOT_FOUND
+                                + " with ID: " + specializationId));
     }
 
     // Extract specialization ID
