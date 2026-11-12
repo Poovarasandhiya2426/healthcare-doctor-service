@@ -1,6 +1,7 @@
 
 package com.healthcare.doctor.controller;
 
+import com.healthcare.doctor.constants.DoctorConstants;
 import com.healthcare.doctor.dto.request.DoctorRegistrationRequest;
 import com.healthcare.doctor.dto.request.DoctorUpdateRequest;
 import com.healthcare.doctor.dto.response.ApiResponse;
@@ -25,7 +26,7 @@ public class DoctorController {
 
     private final DoctorService doctorService;
 
-    // Register Doctor
+    // Register doctor
     @PostMapping
     public ResponseEntity<ApiResponse<DoctorResponse>> registerDoctor(
             @Valid @RequestBody DoctorRegistrationRequest request) {
@@ -33,15 +34,13 @@ public class DoctorController {
         DoctorResponse response =
                 doctorService.registerDoctor(request);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
-                        "Doctor registered successfully",
-                        response
-                ));
+                        DoctorConstants.DOCTOR_REGISTERED,
+                        response));
     }
 
-    // Get Doctor By ID
+    // Get doctor by ID
     @GetMapping("/{doctorId}")
     public ResponseEntity<ApiResponse<DoctorResponse>> getDoctorById(
             @PathVariable Long doctorId) {
@@ -51,13 +50,11 @@ public class DoctorController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctor retrieved successfully",
-                        response
-                )
-        );
+                        DoctorConstants.DOCTOR_FETCHED,
+                        response));
     }
 
-    // Get Doctor By Email
+    // Get doctor by email
     @GetMapping("/email/{email}")
     public ResponseEntity<ApiResponse<DoctorResponse>> getDoctorByEmail(
             @PathVariable String email) {
@@ -67,31 +64,30 @@ public class DoctorController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctor retrieved successfully",
-                        response
-                )
-        );
+                        DoctorConstants.DOCTOR_FETCHED,
+                        response));
     }
 
-    // Get All Doctors
+    // Get all doctors with pagination
     @GetMapping
     public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
     getAllDoctors(
-            @PageableDefault(size = 10, sort = "id")
-            Pageable pageable) {
+            @PageableDefault(
+                    page = 0,
+                    size = 10,
+                    sort = "id"
+            ) Pageable pageable) {
 
         Page<DoctorSummaryResponse> response =
                 doctorService.getAllDoctors(pageable);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctors retrieved successfully",
-                        response
-                )
-        );
+                        DoctorConstants.DOCTORS_FETCHED,
+                        response));
     }
 
-    // Update Doctor
+    // Update doctor
     @PutMapping("/{doctorId}")
     public ResponseEntity<ApiResponse<DoctorResponse>> updateDoctor(
             @PathVariable Long doctorId,
@@ -102,13 +98,11 @@ public class DoctorController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctor updated successfully",
-                        response
-                )
-        );
+                        DoctorConstants.DOCTOR_UPDATED,
+                        response));
     }
 
-    // Deactivate Doctor
+    // Deactivate doctor
     @PatchMapping("/{doctorId}/deactivate")
     public ResponseEntity<ApiResponse<DoctorResponse>> deactivateDoctor(
             @PathVariable Long doctorId) {
@@ -118,17 +112,16 @@ public class DoctorController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctor deactivated successfully",
-                        response
-                )
-        );
+                        DoctorConstants.DOCTOR_DEACTIVATED,
+                        response));
     }
 
-    // Search Doctors
+    // Search doctors
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
     searchDoctors(
             @RequestParam String keyword,
+            @PageableDefault(size = 10, sort = "id")
             Pageable pageable) {
 
         Page<DoctorSummaryResponse> response =
@@ -136,38 +129,34 @@ public class DoctorController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctors search completed successfully",
-                        response
-                )
-        );
+                        DoctorConstants.DOCTORS_FETCHED,
+                        response));
     }
 
-    // Get Doctors By Specialization
+    // Get doctors by specialization
     @GetMapping("/specialization/{specializationId}")
     public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
     getDoctorsBySpecialization(
             @PathVariable Long specializationId,
+            @PageableDefault(size = 10, sort = "id")
             Pageable pageable) {
 
         Page<DoctorSummaryResponse> response =
                 doctorService.getDoctorsBySpecialization(
-                        specializationId,
-                        pageable
-                );
+                        specializationId, pageable);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctors retrieved by specialization successfully",
-                        response
-                )
-        );
+                        DoctorConstants.DOCTORS_FETCHED,
+                        response));
     }
 
-    // Get Doctors By Status
+    // Get doctors by status
     @GetMapping("/status/{status}")
     public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
     getDoctorsByStatus(
             @PathVariable String status,
+            @PageableDefault(size = 10, sort = "id")
             Pageable pageable) {
 
         Page<DoctorSummaryResponse> response =
@@ -175,9 +164,7 @@ public class DoctorController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctors retrieved by status successfully",
-                        response
-                )
-        );
+                        DoctorConstants.DOCTORS_FETCHED,
+                        response));
     }
 }

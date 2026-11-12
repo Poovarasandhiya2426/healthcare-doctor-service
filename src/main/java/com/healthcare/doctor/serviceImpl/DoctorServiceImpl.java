@@ -1,6 +1,7 @@
 
 package com.healthcare.doctor.serviceImpl;
 
+import com.healthcare.doctor.constants.DoctorConstants;
 import com.healthcare.doctor.dto.request.DoctorRegistrationRequest;
 import com.healthcare.doctor.dto.request.DoctorUpdateRequest;
 import com.healthcare.doctor.dto.response.DoctorResponse;
@@ -35,19 +36,19 @@ public class DoctorServiceImpl implements DoctorService {
 
         if (doctorRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException(
-                    "Doctor email already exists");
+                    DoctorConstants.DUPLICATE_EMAIL);
         }
 
         if (doctorRepository.existsByPhoneNumber(
                 request.getPhoneNumber())) {
             throw new DuplicateResourceException(
-                    "Doctor phone number already exists");
+                    DoctorConstants.DUPLICATE_PHONE);
         }
 
         if (doctorRepository.existsByLicenseNumber(
                 request.getLicenseNumber())) {
             throw new DuplicateResourceException(
-                    "Doctor license number already exists");
+                    DoctorConstants.DUPLICATE_LICENSE);
         }
 
         if (doctorRepository.findByIdentityUserId(
@@ -80,7 +81,8 @@ public class DoctorServiceImpl implements DoctorService {
 
         Doctor doctor = doctorRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Doctor not found with email: " + email));
+                        DoctorConstants.DOCTOR_NOT_FOUND
+                                + " with email: " + email));
 
         return doctorMapper.toResponse(doctor);
     }
@@ -107,14 +109,14 @@ public class DoctorServiceImpl implements DoctorService {
                 .filter(existing -> !existing.getId().equals(doctorId))
                 .ifPresent(existing -> {
                     throw new DuplicateResourceException(
-                            "Email is already used by another doctor");
+                            DoctorConstants.DUPLICATE_EMAIL);
                 });
 
         doctorRepository.findByPhoneNumber(request.getPhoneNumber())
                 .filter(existing -> !existing.getId().equals(doctorId))
                 .ifPresent(existing -> {
                     throw new DuplicateResourceException(
-                            "Phone number is already used by another doctor");
+                            DoctorConstants.DUPLICATE_PHONE);
                 });
 
         doctorMapper.updateEntity(request, doctor);
@@ -130,12 +132,14 @@ public class DoctorServiceImpl implements DoctorService {
 
         Doctor doctor = findDoctorById(doctorId);
 
-        if ("INACTIVE".equalsIgnoreCase(doctor.getStatus())) {
+        if (DoctorConstants.STATUS_INACTIVE.equalsIgnoreCase(
+                doctor.getStatus())) {
+
             throw new BadRequestException(
-                    "Doctor is already inactive");
+                    DoctorConstants.DOCTOR_ALREADY_INACTIVE);
         }
 
-        doctor.setStatus("INACTIVE");
+        doctor.setStatus(DoctorConstants.STATUS_INACTIVE);
 
         Doctor updatedDoctor = doctorRepository.save(doctor);
 
@@ -151,7 +155,7 @@ public class DoctorServiceImpl implements DoctorService {
 
         if (keyword == null || keyword.isBlank()) {
             throw new BadRequestException(
-                    "Search keyword cannot be empty");
+                    DoctorConstants.INVALID_SEARCH_KEYWORD);
         }
 
         return doctorRepository.searchDoctors(
@@ -173,7 +177,7 @@ public class DoctorServiceImpl implements DoctorService {
 
         return doctorRepository.findBySpecializationIdAndStatus(
                 specializationId,
-                "ACTIVE",
+                DoctorConstants.STATUS_ACTIVE,
                 pageable
         ).map(doctorMapper::toSummaryResponse);
     }
@@ -192,10 +196,12 @@ public class DoctorServiceImpl implements DoctorService {
 
         String normalizedStatus = status.trim().toUpperCase();
 
-        if (!normalizedStatus.equals("ACTIVE")
-                && !normalizedStatus.equals("INACTIVE")) {
+        if (!normalizedStatus.equals(DoctorConstants.STATUS_ACTIVE)
+                && !normalizedStatus.equals(
+                DoctorConstants.STATUS_INACTIVE)) {
+
             throw new BadRequestException(
-                    "Invalid doctor status. Use ACTIVE or INACTIVE");
+                    DoctorConstants.INVALID_DOCTOR_STATUS);
         }
 
         return doctorRepository.findByStatus(
@@ -208,11 +214,12 @@ public class DoctorServiceImpl implements DoctorService {
 
         if (doctorId == null || doctorId <= 0) {
             throw new BadRequestException(
-                    "Valid doctor ID is required");
+                    DoctorConstants.INVALID_DOCTOR_ID);
         }
 
         return doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Doctor not found with ID: " + doctorId));
+                        DoctorConstants.DOCTOR_NOT_FOUND
+                                + " with ID: " + doctorId));
     }
 }
