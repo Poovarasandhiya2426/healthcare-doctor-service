@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,8 @@ public class SpecializationController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
-                        "Specialization created successfully", response));
+                        DoctorConstants.SPECIALIZATION_CREATED,
+                        response));
     }
 
     // Get specialization by ID
@@ -48,20 +50,24 @@ public class SpecializationController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Specialization fetched successfully", response));
+                        DoctorConstants.SPECIALIZATION_FETCHED,
+                        response));
     }
 
-    // Get all active specializations
+    // Get all specializations
     @GetMapping
     public ResponseEntity<ApiResponse<Page<SpecializationResponse>>>
-    getAllSpecializations(Pageable pageable) {
+    getAllSpecializations(
+            @PageableDefault(size = 10, sort = "id")
+            Pageable pageable) {
 
         Page<SpecializationResponse> response =
                 specializationService.getAllSpecializations(pageable);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Specializations fetched successfully", response));
+                        DoctorConstants.SPECIALIZATIONS_FETCHED,
+                        response));
     }
 
     // Update specialization
@@ -76,7 +82,8 @@ public class SpecializationController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Specialization updated successfully", response));
+                        DoctorConstants.SPECIALIZATION_UPDATED,
+                        response));
     }
 
     // Deactivate specialization
@@ -88,14 +95,16 @@ public class SpecializationController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Specialization deactivated successfully", null));
+                        DoctorConstants.SPECIALIZATION_DEACTIVATED,
+                        null));
     }
 
-    // Search specialization
+    // Search specializations
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<Page<SpecializationResponse>>>
     searchSpecializations(
             @RequestParam String keyword,
+            @PageableDefault(size = 10, sort = "id")
             Pageable pageable) {
 
         Page<SpecializationResponse> response =
@@ -104,7 +113,7 @@ public class SpecializationController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Specializations search completed successfully",
+                        DoctorConstants.SPECIALIZATION_SEARCH_COMPLETED,
                         response));
     }
 }
