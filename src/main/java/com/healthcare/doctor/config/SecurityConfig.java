@@ -2,10 +2,13 @@
 package com.healthcare.doctor.config;
 
 import com.healthcare.doctor.security.JwtAuthenticationFilter;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -39,8 +42,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // Public actuator endpoints
-                        .requestMatchers("/actuator/health", "/actuator/info")
-                        .permitAll()
+                        .requestMatchers(
+                                "/actuator/health",
+                                "/actuator/info"
+                        ).permitAll()
 
                         // =====================================
                         // DOCTOR APIs
@@ -52,8 +57,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/doctors/**")
                         .hasAuthority("ROLE_ADMIN")
 
-                        .requestMatchers(HttpMethod.PATCH, "/api/doctors/*/deactivate")
-                        .hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/doctors/*/deactivate"
+                        ).hasAuthority("ROLE_ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/doctors/**")
                         .hasAnyAuthority(
@@ -69,26 +76,22 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/specializations"
-                        )
-                        .hasAuthority("ROLE_ADMIN")
+                        ).hasAuthority("ROLE_ADMIN")
 
                         .requestMatchers(
                                 HttpMethod.PUT,
                                 "/api/specializations/**"
-                        )
-                        .hasAuthority("ROLE_ADMIN")
+                        ).hasAuthority("ROLE_ADMIN")
 
                         .requestMatchers(
                                 HttpMethod.PATCH,
                                 "/api/specializations/**"
-                        )
-                        .hasAuthority("ROLE_ADMIN")
+                        ).hasAuthority("ROLE_ADMIN")
 
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/specializations/**"
-                        )
-                        .hasAnyAuthority(
+                        ).hasAnyAuthority(
                                 "ROLE_ADMIN",
                                 "ROLE_DOCTOR",
                                 "ROLE_RECEPTIONIST"
@@ -101,32 +104,27 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/doctor-availability/**"
-                        )
-                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
+                        ).hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
 
                         .requestMatchers(
                                 HttpMethod.PUT,
                                 "/api/doctor-availability/**"
-                        )
-                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
+                        ).hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
 
                         .requestMatchers(
                                 HttpMethod.PATCH,
                                 "/api/doctor-availability/**"
-                        )
-                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
+                        ).hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
 
                         .requestMatchers(
                                 HttpMethod.DELETE,
                                 "/api/doctor-availability/**"
-                        )
-                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
+                        ).hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
 
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/doctor-availability/**"
-                        )
-                        .hasAnyAuthority(
+                        ).hasAnyAuthority(
                                 "ROLE_ADMIN",
                                 "ROLE_DOCTOR",
                                 "ROLE_RECEPTIONIST"
@@ -140,35 +138,72 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/doctor-qualifications"
-                        )
-                        .hasAuthority("ROLE_ADMIN")
+                        ).hasAuthority("ROLE_ADMIN")
 
                         // Update qualification - ADMIN only
                         .requestMatchers(
                                 HttpMethod.PUT,
                                 "/api/doctor-qualifications/**"
-                        )
-                        .hasAuthority("ROLE_ADMIN")
+                        ).hasAuthority("ROLE_ADMIN")
 
                         // Delete qualification - ADMIN only
                         .requestMatchers(
                                 HttpMethod.DELETE,
                                 "/api/doctor-qualifications/**"
-                        )
-                        .hasAuthority("ROLE_ADMIN")
+                        ).hasAuthority("ROLE_ADMIN")
 
-                        // Read qualification - ADMIN, DOCTOR, RECEPTIONIST
+                        // Read qualification
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/doctor-qualifications/**"
-                        )
-                        .hasAnyAuthority(
+                        ).hasAnyAuthority(
                                 "ROLE_ADMIN",
                                 "ROLE_DOCTOR",
                                 "ROLE_RECEPTIONIST"
                         )
 
-                        // All remaining APIs require authentication
+                        // =====================================
+                        // DOCTOR HOSPITAL MAPPING APIs
+                        // =====================================
+
+                        // Create mapping - ADMIN only
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/doctor-hospitals"
+                        ).hasAuthority("ROLE_ADMIN")
+
+                        // Update mapping - ADMIN only
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/doctor-hospitals/**"
+                        ).hasAuthority("ROLE_ADMIN")
+
+                        // Deactivate mapping - ADMIN only
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/doctor-hospitals/**"
+                        ).hasAuthority("ROLE_ADMIN")
+
+                        // Delete mapping - ADMIN only
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/doctor-hospitals/**"
+                        ).hasAuthority("ROLE_ADMIN")
+
+                        // Read mapping
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/doctor-hospitals/**"
+                        ).hasAnyAuthority(
+                                "ROLE_ADMIN",
+                                "ROLE_DOCTOR",
+                                "ROLE_RECEPTIONIST"
+                        )
+
+                        // =====================================
+                        // ALL REMAINING APIs
+                        // =====================================
+
                         .anyRequest().authenticated()
                 )
 

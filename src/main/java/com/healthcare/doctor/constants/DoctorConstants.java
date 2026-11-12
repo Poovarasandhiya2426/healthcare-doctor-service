@@ -137,5 +137,66 @@ public final class DoctorConstants {
             "Qualification request cannot be empty";
 
 
-    }
+
+// ==========================================
+// DOCTOR HOSPITAL MAPPING
+// ==========================================
+
+    public static final String HOSPITAL_MAPPING_CREATED =
+            "Doctor hospital mapping created successfully";
+
+    public static final String HOSPITAL_MAPPING_FETCHED =
+            "Doctor hospital mapping fetched successfully";
+
+    public static final String HOSPITAL_MAPPINGS_FETCHED =
+            "Doctor hospital mappings fetched successfully";
+
+    public static final String HOSPITAL_MAPPING_UPDATED =
+            "Doctor hospital mapping updated successfully";
+
+    public static final String HOSPITAL_MAPPING_DELETED =
+            "Doctor hospital mapping deleted successfully";
+
+    public static final String HOSPITAL_MAPPING_NOT_FOUND =
+            "Doctor hospital mapping not found";
+
+    public static final String DUPLICATE_HOSPITAL_MAPPING =
+            "Doctor is already mapped to this hospital";
+
+    public static final String INVALID_HOSPITAL_ID =
+            "Invalid hospital ID";
+
+    public static final String INVALID_JOINING_DATE =
+            "Invalid joining date";
+
+    public static final String INVALID_CONSULTATION_FEE =
+            "Consultation fee cannot be negative";
+
+    public static final String HOSPITAL_MAPPING_ALREADY_INACTIVE =
+            "Doctor hospital mapping is already inactive";
+
+    public static final String PRIMARY_HOSPITAL_EXISTS =
+            "Doctor already has a primary hospital";
+
+
+// Additional Hospital Mapping Constants
+
+    public static final String INVALID_HOSPITAL_MAPPING_ID =
+            "Invalid hospital mapping ID";
+
+    public static final String HOSPITAL_MAPPING_REQUEST_EMPTY =
+            "Hospital mapping request cannot be empty";
+
+    public static final String HOSPITAL_MAPPING_DOCTOR_CHANGE_NOT_ALLOWED =
+            "Doctor cannot be changed in an existing hospital mapping";
+
+    public static final String HOSPITAL_MAPPING_HOSPITAL_CHANGE_NOT_ALLOWED =
+            "Hospital cannot be changed in an existing doctor mapping";
+
+    public static final String HOSPITAL_MAPPING_DEACTIVATED =
+            "Doctor hospital mapping deactivated successfully";
+
+
+
+}
 
