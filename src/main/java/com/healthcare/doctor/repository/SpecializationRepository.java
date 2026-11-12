@@ -2,6 +2,7 @@
 package com.healthcare.doctor.repository;
 
 import com.healthcare.doctor.entity.Specialization;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,6 +21,6 @@ public interface SpecializationRepository
     Page<Specialization> findByActiveTrue(Pageable pageable);
 
     Page<Specialization> findByNameContainingIgnoreCaseAndActiveTrue(
-            String name, Pageable pageable
-    );
+            String name,
+            Pageable pageable);
 }

@@ -231,6 +231,15 @@ public final class DoctorConstants {
     public static final String VALIDATION_FAILED =
             "Request validation failed";
 
+    public static final String SPECIALIZATION_NAME_REQUIRED =
+            "Specialization name is required";
+
+    public static final String SPECIALIZATION_NAME_MAX_LENGTH =
+            "Specialization name cannot exceed 100 characters";
+
+    public static final String SPECIALIZATION_DESCRIPTION_MAX_LENGTH =
+            "Description cannot exceed 500 characters";
+
 
 }
 
