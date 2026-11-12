@@ -246,18 +246,27 @@ public class DoctorQualificationServiceImpl
         String normalizedDegree = degree.trim();
         String normalizedUniversity = university.trim();
 
-        boolean duplicate = qualificationRepository
-                .findByDoctorId(doctorId)
-                .stream()
-                .anyMatch(existing ->
-                        !existing.getId().equals(excludeQualificationId)
-                                && existing.getDegree() != null
-                                && existing.getUniversity() != null
-                                && existing.getDegree().trim()
-                                .equalsIgnoreCase(normalizedDegree)
-                                && existing.getUniversity().trim()
-                                .equalsIgnoreCase(normalizedUniversity)
-                );
+        boolean duplicate;
+
+        if (excludeQualificationId == null) {
+
+            duplicate = qualificationRepository
+                    .existsByDoctorIdAndDegreeIgnoreCaseAndUniversityIgnoreCase(
+                            doctorId,
+                            normalizedDegree,
+                            normalizedUniversity
+                    );
+
+        } else {
+
+            duplicate = qualificationRepository
+                    .existsByDoctorIdAndDegreeIgnoreCaseAndUniversityIgnoreCaseAndIdNot(
+                            doctorId,
+                            normalizedDegree,
+                            normalizedUniversity,
+                            excludeQualificationId
+                    );
+        }
 
         if (duplicate) {
             throw new DuplicateResourceException(
