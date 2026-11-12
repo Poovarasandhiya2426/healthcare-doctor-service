@@ -1,6 +1,7 @@
 
 package com.healthcare.doctor.serviceImpl;
 
+import com.healthcare.doctor.constants.DoctorConstants;
 import com.healthcare.doctor.dto.request.SpecializationRequest;
 import com.healthcare.doctor.dto.response.SpecializationResponse;
 import com.healthcare.doctor.entity.Specialization;
@@ -26,14 +27,16 @@ public class SpecializationServiceImpl implements SpecializationService {
     private final SpecializationRepository specializationRepository;
     private final SpecializationMapper specializationMapper;
 
+    // Create specialization
     @Override
     public SpecializationResponse createSpecialization(
             SpecializationRequest request) {
 
-        if (specializationRepository.existsByNameIgnoreCase(
-                request.getName().trim())) {
+        String name = request.getName().trim();
+
+        if (specializationRepository.existsByNameIgnoreCase(name)) {
             throw new DuplicateResourceException(
-                    "Specialization name already exists");
+                    DoctorConstants.DUPLICATE_SPECIALIZATION_NAME);
         }
 
         Specialization specialization =
@@ -45,6 +48,7 @@ public class SpecializationServiceImpl implements SpecializationService {
         return specializationMapper.toResponse(savedSpecialization);
     }
 
+    // Get specialization by ID
     @Override
     @Transactional(readOnly = true)
     public SpecializationResponse getSpecializationById(Long id) {
@@ -54,6 +58,7 @@ public class SpecializationServiceImpl implements SpecializationService {
         return specializationMapper.toResponse(specialization);
     }
 
+    // Get all active specializations
     @Override
     @Transactional(readOnly = true)
     public Page<SpecializationResponse> getAllSpecializations(
@@ -63,6 +68,7 @@ public class SpecializationServiceImpl implements SpecializationService {
                 .map(specializationMapper::toResponse);
     }
 
+    // Update specialization
     @Override
     public SpecializationResponse updateSpecialization(
             Long id,
@@ -76,7 +82,7 @@ public class SpecializationServiceImpl implements SpecializationService {
                 .filter(existing -> !existing.getId().equals(id))
                 .ifPresent(existing -> {
                     throw new DuplicateResourceException(
-                            "Specialization name already exists");
+                            DoctorConstants.DUPLICATE_SPECIALIZATION_NAME);
                 });
 
         specializationMapper.updateEntity(request, specialization);
@@ -87,6 +93,7 @@ public class SpecializationServiceImpl implements SpecializationService {
         return specializationMapper.toResponse(updatedSpecialization);
     }
 
+    // Deactivate specialization
     @Override
     public void deactivateSpecialization(Long id) {
 
@@ -94,7 +101,7 @@ public class SpecializationServiceImpl implements SpecializationService {
 
         if (!Boolean.TRUE.equals(specialization.getActive())) {
             throw new BadRequestException(
-                    "Specialization is already inactive");
+                    DoctorConstants.SPECIALIZATION_ALREADY_INACTIVE);
         }
 
         specialization.setActive(false);
@@ -102,6 +109,7 @@ public class SpecializationServiceImpl implements SpecializationService {
         specializationRepository.save(specialization);
     }
 
+    // Search specializations
     @Override
     @Transactional(readOnly = true)
     public Page<SpecializationResponse> searchSpecializations(
@@ -110,7 +118,7 @@ public class SpecializationServiceImpl implements SpecializationService {
 
         if (keyword == null || keyword.isBlank()) {
             throw new BadRequestException(
-                    "Search keyword is required");
+                    DoctorConstants.SPECIALIZATION_SEARCH_KEYWORD_REQUIRED);
         }
 
         return specializationRepository
@@ -119,15 +127,17 @@ public class SpecializationServiceImpl implements SpecializationService {
                 .map(specializationMapper::toResponse);
     }
 
+    // Find specialization by ID
     private Specialization findSpecializationById(Long id) {
 
         if (id == null || id <= 0) {
             throw new BadRequestException(
-                    "Valid specialization ID is required");
+                    DoctorConstants.INVALID_SPECIALIZATION_ID);
         }
 
         return specializationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Specialization not found with ID: " + id));
+                        DoctorConstants.SPECIALIZATION_NOT_FOUND
+                                + " with ID: " + id));
     }
 }
