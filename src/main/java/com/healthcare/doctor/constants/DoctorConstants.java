@@ -96,6 +96,11 @@ public final class DoctorConstants {
     public static final String SPECIALIZATION_SEARCH_KEYWORD_REQUIRED =
             "Search keyword is required";
 
+    // Security roles
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    public static final String ROLE_DOCTOR = "ROLE_DOCTOR";
+    public static final String ROLE_RECEPTIONIST = "ROLE_RECEPTIONIST";
+
 
 
 }
