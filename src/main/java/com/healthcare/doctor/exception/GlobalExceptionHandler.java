@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -21,7 +22,10 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Handle Resource Not Found - 404
+    // ==========================================
+    // RESOURCE NOT FOUND - 404
+    // ==========================================
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(
             ResourceNotFoundException exception) {
@@ -30,7 +34,10 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(exception.getMessage()));
     }
 
-    // Handle Duplicate Resource - 409
+    // ==========================================
+    // DUPLICATE RESOURCE - 409
+    // ==========================================
+
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ApiResponse<Void>> handleDuplicateResource(
             DuplicateResourceException exception) {
@@ -39,7 +46,10 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(exception.getMessage()));
     }
 
-    // Handle Bad Request - 400
+    // ==========================================
+    // BAD REQUEST - 400
+    // ==========================================
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadRequest(
             BadRequestException exception) {
@@ -48,7 +58,24 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(exception.getMessage()));
     }
 
-    // Handle Request Validation Errors - 400
+    // ==========================================
+    // ACCESS DENIED - 403
+    // ==========================================
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDenied(
+            AccessDeniedException exception) {
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(
+                        "You are not authorized to access this resource."
+                ));
+    }
+
+    // ==========================================
+    // REQUEST VALIDATION ERRORS - 400
+    // ==========================================
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationException(
             MethodArgumentNotValidException exception) {
@@ -68,7 +95,10 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(message));
     }
 
-    // Handle Constraint Violations - 400
+    // ==========================================
+    // CONSTRAINT VIOLATIONS - 400
+    // ==========================================
+
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(
             ConstraintViolationException exception) {
@@ -83,10 +113,14 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(
                         message.isBlank()
                                 ? DoctorConstants.VALIDATION_FAILED
-                                : message));
+                                : message
+                ));
     }
 
-    // Handle Database Constraint Violations - 409
+    // ==========================================
+    // DATABASE CONSTRAINT VIOLATIONS - 409
+    // ==========================================
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(
             DataIntegrityViolationException exception) {
@@ -95,10 +129,14 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(
-                        DoctorConstants.DATABASE_CONSTRAINT_VIOLATION));
+                        DoctorConstants.DATABASE_CONSTRAINT_VIOLATION
+                ));
     }
 
-    // Handle Unexpected Exceptions - 500
+    // ==========================================
+    // UNEXPECTED EXCEPTIONS - 500
+    // ==========================================
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(
             Exception exception) {
@@ -107,6 +145,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(
-                        DoctorConstants.UNEXPECTED_ERROR));
+                        DoctorConstants.UNEXPECTED_ERROR
+                ));
     }
 }

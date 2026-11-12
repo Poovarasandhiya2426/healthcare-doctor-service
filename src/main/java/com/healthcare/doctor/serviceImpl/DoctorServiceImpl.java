@@ -13,14 +13,20 @@ import com.healthcare.doctor.exception.DuplicateResourceException;
 import com.healthcare.doctor.exception.ResourceNotFoundException;
 import com.healthcare.doctor.mapper.DoctorMapper;
 import com.healthcare.doctor.repository.DoctorRepository;
+import com.healthcare.doctor.security.DoctorUserPrincipal;
 import com.healthcare.doctor.service.DoctorService;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +36,10 @@ public class DoctorServiceImpl implements DoctorService {
     private final DoctorRepository doctorRepository;
     private final DoctorMapper doctorMapper;
 
-    // Register doctor
+    // ==========================================
+    // REGISTER DOCTOR
+    // ==========================================
+
     @Override
     public DoctorResponse registerDoctor(
             DoctorRegistrationRequest request) {
@@ -40,19 +49,23 @@ public class DoctorServiceImpl implements DoctorService {
                     DoctorConstants.DUPLICATE_EMAIL);
         }
 
-        if (doctorRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+        if (doctorRepository.existsByPhoneNumber(
+                request.getPhoneNumber())) {
+
             throw new DuplicateResourceException(
                     DoctorConstants.DUPLICATE_PHONE);
         }
 
         if (doctorRepository.existsByLicenseNumber(
                 request.getLicenseNumber())) {
+
             throw new DuplicateResourceException(
                     DoctorConstants.DUPLICATE_LICENSE);
         }
 
         if (doctorRepository.findByIdentityUserId(
                 request.getIdentityUserId()).isPresent()) {
+
             throw new DuplicateResourceException(
                     DoctorConstants.IDENTITY_USER_ALREADY_LINKED);
         }
@@ -64,7 +77,10 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorMapper.toResponse(savedDoctor);
     }
 
-    // Get doctor by ID
+    // ==========================================
+    // GET DOCTOR BY ID
+    // ==========================================
+
     @Override
     @Transactional(readOnly = true)
     public DoctorResponse getDoctorById(Long doctorId) {
@@ -74,7 +90,10 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorMapper.toResponse(doctor);
     }
 
-    // Get doctor by email
+    // ==========================================
+    // GET DOCTOR BY EMAIL
+    // ==========================================
+
     @Override
     @Transactional(readOnly = true)
     public DoctorResponse getDoctorByEmail(String email) {
@@ -87,7 +106,10 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorMapper.toResponse(doctor);
     }
 
-    // Get all doctors
+    // ==========================================
+    // GET ALL DOCTORS
+    // ==========================================
+
     @Override
     @Transactional(readOnly = true)
     public Page<DoctorSummaryResponse> getAllDoctors(
@@ -97,7 +119,10 @@ public class DoctorServiceImpl implements DoctorService {
                 .map(doctorMapper::toSummaryResponse);
     }
 
-    // Update doctor
+    // ==========================================
+    // UPDATE DOCTOR
+    // ==========================================
+
     @Override
     public DoctorResponse updateDoctor(
             Long doctorId,
@@ -105,15 +130,21 @@ public class DoctorServiceImpl implements DoctorService {
 
         Doctor doctor = findDoctorById(doctorId);
 
+        // Verify ADMIN or doctor's own profile
+        validateDoctorOwnership(doctor);
+
         doctorRepository.findByEmail(request.getEmail())
-                .filter(existing -> !existing.getId().equals(doctorId))
+                .filter(existing ->
+                        !existing.getId().equals(doctorId))
                 .ifPresent(existing -> {
                     throw new DuplicateResourceException(
                             DoctorConstants.DUPLICATE_EMAIL);
                 });
 
-        doctorRepository.findByPhoneNumber(request.getPhoneNumber())
-                .filter(existing -> !existing.getId().equals(doctorId))
+        doctorRepository.findByPhoneNumber(
+                        request.getPhoneNumber())
+                .filter(existing ->
+                        !existing.getId().equals(doctorId))
                 .ifPresent(existing -> {
                     throw new DuplicateResourceException(
                             DoctorConstants.DUPLICATE_PHONE);
@@ -126,11 +157,17 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorMapper.toResponse(updatedDoctor);
     }
 
-    // Deactivate doctor
+    // ==========================================
+    // DEACTIVATE DOCTOR
+    // ==========================================
+
     @Override
     public DoctorResponse deactivateDoctor(Long doctorId) {
 
         Doctor doctor = findDoctorById(doctorId);
+
+        // Verify ADMIN or doctor's own profile
+        validateDoctorOwnership(doctor);
 
         if (doctor.getStatus() == DoctorStatus.INACTIVE) {
             throw new BadRequestException(
@@ -144,7 +181,10 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorMapper.toResponse(updatedDoctor);
     }
 
-    // Search doctors
+    // ==========================================
+    // SEARCH DOCTORS
+    // ==========================================
+
     @Override
     @Transactional(readOnly = true)
     public Page<DoctorSummaryResponse> searchDoctors(
@@ -161,7 +201,10 @@ public class DoctorServiceImpl implements DoctorService {
                 .map(doctorMapper::toSummaryResponse);
     }
 
-    // Get doctors by specialization
+    // ==========================================
+    // GET DOCTORS BY SPECIALIZATION
+    // ==========================================
+
     @Override
     @Transactional(readOnly = true)
     public Page<DoctorSummaryResponse> getDoctorsBySpecialization(
@@ -180,7 +223,10 @@ public class DoctorServiceImpl implements DoctorService {
                 .map(doctorMapper::toSummaryResponse);
     }
 
-    // Get doctors by status
+    // ==========================================
+    // GET DOCTORS BY STATUS
+    // ==========================================
+
     @Override
     @Transactional(readOnly = true)
     public Page<DoctorSummaryResponse> getDoctorsByStatus(
@@ -197,16 +243,70 @@ public class DoctorServiceImpl implements DoctorService {
         try {
             doctorStatus = DoctorStatus.valueOf(
                     status.trim().toUpperCase());
+
         } catch (IllegalArgumentException exception) {
             throw new BadRequestException(
                     DoctorConstants.INVALID_DOCTOR_STATUS);
         }
 
-        return doctorRepository.findByStatus(doctorStatus, pageable)
+        return doctorRepository.findByStatus(
+                        doctorStatus, pageable)
                 .map(doctorMapper::toSummaryResponse);
     }
 
-    // Find doctor by ID
+    // ==========================================
+    // VALIDATE DOCTOR OWNERSHIP
+    // ==========================================
+
+    private void validateDoctorOwnership(Doctor doctor) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext()
+                        .getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()) {
+
+            throw new AccessDeniedException(
+                    "Authentication is required.");
+        }
+
+        // ADMIN can update or deactivate any doctor
+        boolean isAdmin = authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        "ROLE_ADMIN".equals(
+                                authority.getAuthority()));
+
+        if (isAdmin) {
+            return;
+        }
+
+        // Only the authenticated doctor can modify own profile
+        Object principal = authentication.getPrincipal();
+
+        if (!(principal instanceof DoctorUserPrincipal doctorPrincipal)) {
+            throw new AccessDeniedException(
+                    "Invalid authenticated user.");
+        }
+
+        Long authenticatedUserId = doctorPrincipal.userId();
+        Long doctorIdentityUserId = doctor.getIdentityUserId();
+
+        if (authenticatedUserId == null
+                || !Objects.equals(
+                authenticatedUserId,
+                doctorIdentityUserId)) {
+
+            throw new AccessDeniedException(
+                    "You are not authorized to modify this doctor profile.");
+        }
+    }
+
+    // ==========================================
+    // FIND DOCTOR BY ID
+    // ==========================================
+
     private Doctor findDoctorById(Long doctorId) {
 
         if (doctorId == null || doctorId <= 0) {

@@ -12,15 +12,20 @@ import com.healthcare.doctor.exception.ResourceNotFoundException;
 import com.healthcare.doctor.mapper.DoctorAvailabilityMapper;
 import com.healthcare.doctor.repository.DoctorAvailabilityRepository;
 import com.healthcare.doctor.repository.DoctorRepository;
+import com.healthcare.doctor.security.DoctorUserPrincipal;
 import com.healthcare.doctor.service.DoctorAvailabilityService;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -32,9 +37,7 @@ public class DoctorAvailabilityServiceImpl
     private final DoctorRepository doctorRepository;
     private final DoctorAvailabilityMapper availabilityMapper;
 
-    // ==========================================
-    // CREATE DOCTOR AVAILABILITY
-    // ==========================================
+    // CREATE AVAILABILITY
 
     @Override
     public DoctorAvailabilityResponse createAvailability(
@@ -43,6 +46,8 @@ public class DoctorAvailabilityServiceImpl
         validateRequest(request);
 
         Doctor doctor = findDoctorById(request.getDoctorId());
+
+        validateDoctorOwnership(doctor);
 
         validateDuplicateAvailability(
                 doctor.getId(),
@@ -59,9 +64,7 @@ public class DoctorAvailabilityServiceImpl
         return availabilityMapper.toResponse(savedAvailability);
     }
 
-    // ==========================================
     // GET AVAILABILITY BY ID
-    // ==========================================
 
     @Override
     @Transactional(readOnly = true)
@@ -74,9 +77,7 @@ public class DoctorAvailabilityServiceImpl
         return availabilityMapper.toResponse(availability);
     }
 
-    // ==========================================
     // GET AVAILABILITY BY DOCTOR ID
-    // ==========================================
 
     @Override
     @Transactional(readOnly = true)
@@ -92,9 +93,7 @@ public class DoctorAvailabilityServiceImpl
                 .toList();
     }
 
-    // ==========================================
     // GET AVAILABILITY BY DOCTOR AND WEEKDAY
-    // ==========================================
 
     @Override
     @Transactional(readOnly = true)
@@ -116,9 +115,7 @@ public class DoctorAvailabilityServiceImpl
                 .toList();
     }
 
-    // ==========================================
     // UPDATE AVAILABILITY
-    // ==========================================
 
     @Override
     public DoctorAvailabilityResponse updateAvailability(
@@ -130,7 +127,24 @@ public class DoctorAvailabilityServiceImpl
         DoctorAvailability availability =
                 findAvailabilityById(availabilityId);
 
+        // Doctor can update only their own existing schedule.
+        validateDoctorOwnership(availability.getDoctor());
+
         Doctor doctor = findDoctorById(request.getDoctorId());
+
+        // Also validate the requested doctor.
+        validateDoctorOwnership(doctor);
+
+        // A doctor cannot transfer their schedule to another doctor.
+        if (!isAdmin()
+                && !Objects.equals(
+                availability.getDoctor().getId(),
+                doctor.getId())) {
+
+            throw new AccessDeniedException(
+                    "You cannot reassign availability to another doctor."
+            );
+        }
 
         validateDuplicateAvailability(
                 doctor.getId(),
@@ -153,9 +167,7 @@ public class DoctorAvailabilityServiceImpl
         return availabilityMapper.toResponse(updatedAvailability);
     }
 
-    // ==========================================
     // DEACTIVATE AVAILABILITY
-    // ==========================================
 
     @Override
     public DoctorAvailabilityResponse deactivateAvailability(
@@ -163,6 +175,8 @@ public class DoctorAvailabilityServiceImpl
 
         DoctorAvailability availability =
                 findAvailabilityById(availabilityId);
+
+        validateDoctorOwnership(availability.getDoctor());
 
         if (!Boolean.TRUE.equals(availability.getActive())) {
             throw new BadRequestException(
@@ -178,9 +192,49 @@ public class DoctorAvailabilityServiceImpl
         return availabilityMapper.toResponse(updatedAvailability);
     }
 
-    // ==========================================
+    // DOCTOR OWNERSHIP VALIDATION
+
+    private void validateDoctorOwnership(Doctor doctor) {
+
+        if (isAdmin()) {
+            return;
+        }
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !(authentication.getPrincipal()
+                instanceof DoctorUserPrincipal principal)) {
+
+            throw new AccessDeniedException(
+                    "You are not authorized to manage this availability."
+            );
+        }
+
+        if (doctor.getIdentityUserId() == null
+                || !Objects.equals(
+                principal.userId(),
+                doctor.getIdentityUserId())) {
+
+            throw new AccessDeniedException(
+                    "You can manage only your own availability."
+            );
+        }
+    }
+
+    private boolean isAdmin() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        return authentication != null
+                && authentication.getAuthorities().stream()
+                .anyMatch(authority ->
+                        "ROLE_ADMIN".equals(authority.getAuthority()));
+    }
+
     // FIND DOCTOR BY ID
-    // ==========================================
 
     private Doctor findDoctorById(Long doctorId) {
 
@@ -199,9 +253,7 @@ public class DoctorAvailabilityServiceImpl
                 );
     }
 
-    // ==========================================
     // FIND AVAILABILITY BY ID
-    // ==========================================
 
     private DoctorAvailability findAvailabilityById(
             Long availabilityId) {
@@ -221,9 +273,7 @@ public class DoctorAvailabilityServiceImpl
                 );
     }
 
-    // ==========================================
     // VALIDATE REQUEST
-    // ==========================================
 
     private void validateRequest(DoctorAvailabilityRequest request) {
 
@@ -253,9 +303,7 @@ public class DoctorAvailabilityServiceImpl
         );
     }
 
-    // ==========================================
     // VALIDATE DUPLICATE AVAILABILITY
-    // ==========================================
 
     private void validateDuplicateAvailability(
             Long doctorId,
@@ -271,7 +319,10 @@ public class DoctorAvailabilityServiceImpl
 
         boolean duplicateSchedule = existingSchedules.stream()
                 .anyMatch(existing ->
-                        !existing.getId().equals(excludeAvailabilityId)
+                        !Objects.equals(
+                                existing.getId(),
+                                excludeAvailabilityId
+                        )
                 );
 
         if (duplicateSchedule) {
@@ -281,9 +332,7 @@ public class DoctorAvailabilityServiceImpl
         }
     }
 
-    // ==========================================
     // VALIDATE CONSULTATION TIME
-    // ==========================================
 
     private void validateTimeRange(
             LocalTime startTime,
@@ -298,9 +347,7 @@ public class DoctorAvailabilityServiceImpl
         }
     }
 
-    // ==========================================
     // CONVERT STRING TO WEEKDAY ENUM
-    // ==========================================
 
     private WeekDay parseWeekDay(String dayOfWeek) {
 
