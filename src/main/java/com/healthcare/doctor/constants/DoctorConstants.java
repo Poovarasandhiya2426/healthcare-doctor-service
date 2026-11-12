@@ -264,6 +264,67 @@ public final class DoctorConstants {
     public static final String CERTIFICATE_URL_MAX_LENGTH =
             "Certificate URL must not exceed 500 characters";
 
+    // Doctor Availability Success Messages
+
+    public static final String AVAILABILITY_CREATED =
+            "Doctor availability created successfully";
+
+    public static final String AVAILABILITY_FETCHED =
+            "Doctor availability fetched successfully";
+
+    public static final String AVAILABILITIES_FETCHED =
+            "Doctor availability list fetched successfully";
+
+    public static final String AVAILABILITY_UPDATED =
+            "Doctor availability updated successfully";
+
+    public static final String AVAILABILITY_DEACTIVATED =
+            "Doctor availability deactivated successfully";
+
+    public static final String AVAILABILITY_ALREADY_EXISTS =
+            "Active availability already exists for this day";
+
+    public static final String AVAILABILITY_ALREADY_INACTIVE =
+            "Doctor availability is already inactive";
+
+    public static final String INVALID_AVAILABILITY_ID =
+            "Valid availability ID is required";
+
+    public static final String AVAILABILITY_NOT_FOUND =
+            "Doctor availability not found";
+
+    public static final String AVAILABILITY_REQUEST_EMPTY =
+            "Doctor availability request cannot be empty";
+
+    public static final String INVALID_AVAILABILITY_TIME_RANGE =
+            "End time must be after start time";
+
+    public static final String DAY_OF_WEEK_REQUIRED =
+            "Day of week is required";
+
+    public static final String INVALID_DAY_OF_WEEK =
+            "Invalid day of week";
+
+    // Doctor Availability Validation Messages
+
+    public static final String START_TIME_REQUIRED =
+            "Start time is required";
+
+    public static final String END_TIME_REQUIRED =
+            "End time is required";
+
+    public static final String CONSULTATION_MODE_REQUIRED =
+            "Consultation mode is required";
+
+    public static final String SLOT_DURATION_REQUIRED =
+            "Slot duration is required";
+
+    public static final String MIN_SLOT_DURATION =
+            "Minimum slot duration is 5 minutes";
+
+    public static final String MAX_SLOT_DURATION =
+            "Maximum slot duration is 240 minutes";
+
 
 }
 

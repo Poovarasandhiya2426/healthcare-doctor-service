@@ -40,4 +40,10 @@ public interface DoctorAvailabilityRepository
     boolean existsByDoctorIdAndDayOfWeekAndActiveTrue(
             Long doctorId,
             WeekDay dayOfWeek);
+
+    boolean existsByDoctorIdAndDayOfWeekAndActiveTrueAndIdNot(
+            Long doctorId,
+            WeekDay dayOfWeek,
+            Long availabilityId
+    );
 }

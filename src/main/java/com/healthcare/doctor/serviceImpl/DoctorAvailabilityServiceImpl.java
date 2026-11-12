@@ -1,6 +1,7 @@
 
 package com.healthcare.doctor.serviceImpl;
 
+import com.healthcare.doctor.constants.DoctorConstants;
 import com.healthcare.doctor.dto.request.DoctorAvailabilityRequest;
 import com.healthcare.doctor.dto.response.DoctorAvailabilityResponse;
 import com.healthcare.doctor.entity.Doctor;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -30,26 +32,23 @@ public class DoctorAvailabilityServiceImpl
     private final DoctorRepository doctorRepository;
     private final DoctorAvailabilityMapper availabilityMapper;
 
-    // Create doctor availability
+    // ==========================================
+    // CREATE DOCTOR AVAILABILITY
+    // ==========================================
+
     @Override
     public DoctorAvailabilityResponse createAvailability(
             DoctorAvailabilityRequest request) {
 
-        validateTimeRange(
-                request.getStartTime(),
-                request.getEndTime());
+        validateRequest(request);
 
         Doctor doctor = findDoctorById(request.getDoctorId());
 
-        List<DoctorAvailability> existingSchedules =
-                availabilityRepository.findByDoctorIdAndDayOfWeekAndActiveTrue(
-                        doctor.getId(),
-                        request.getDayOfWeek());
-
-        if (!existingSchedules.isEmpty()) {
-            throw new BadRequestException(
-                    "Active availability already exists for this day");
-        }
+        validateDuplicateAvailability(
+                doctor.getId(),
+                request.getDayOfWeek(),
+                null
+        );
 
         DoctorAvailability availability =
                 availabilityMapper.toEntity(request, doctor);
@@ -60,7 +59,10 @@ public class DoctorAvailabilityServiceImpl
         return availabilityMapper.toResponse(savedAvailability);
     }
 
-    // Get availability by ID
+    // ==========================================
+    // GET AVAILABILITY BY ID
+    // ==========================================
+
     @Override
     @Transactional(readOnly = true)
     public DoctorAvailabilityResponse getAvailabilityById(
@@ -72,67 +74,69 @@ public class DoctorAvailabilityServiceImpl
         return availabilityMapper.toResponse(availability);
     }
 
-    // Get all availability records for a doctor
+    // ==========================================
+    // GET AVAILABILITY BY DOCTOR ID
+    // ==========================================
+
     @Override
     @Transactional(readOnly = true)
     public List<DoctorAvailabilityResponse> getAvailabilityByDoctorId(
             Long doctorId) {
 
-        findDoctorById(doctorId);
+        Doctor doctor = findDoctorById(doctorId);
 
-        return availabilityRepository.findByDoctorIdAndActiveTrue(doctorId)
+        return availabilityRepository
+                .findByDoctorIdAndActiveTrue(doctor.getId())
                 .stream()
                 .map(availabilityMapper::toResponse)
                 .toList();
     }
 
-    // Get availability by doctor and weekday
+    // ==========================================
+    // GET AVAILABILITY BY DOCTOR AND WEEKDAY
+    // ==========================================
+
     @Override
     @Transactional(readOnly = true)
     public List<DoctorAvailabilityResponse> getAvailabilityByDoctorAndDay(
             Long doctorId,
             String dayOfWeek) {
 
-        findDoctorById(doctorId);
+        Doctor doctor = findDoctorById(doctorId);
 
         WeekDay weekDay = parseWeekDay(dayOfWeek);
 
         return availabilityRepository
                 .findByDoctorIdAndDayOfWeekAndActiveTrue(
-                        doctorId, weekDay)
+                        doctor.getId(),
+                        weekDay
+                )
                 .stream()
                 .map(availabilityMapper::toResponse)
                 .toList();
     }
 
-    // Update availability
+    // ==========================================
+    // UPDATE AVAILABILITY
+    // ==========================================
+
     @Override
     public DoctorAvailabilityResponse updateAvailability(
             Long availabilityId,
             DoctorAvailabilityRequest request) {
 
-        validateTimeRange(
-                request.getStartTime(),
-                request.getEndTime());
+        validateRequest(request);
 
         DoctorAvailability availability =
                 findAvailabilityById(availabilityId);
 
         Doctor doctor = findDoctorById(request.getDoctorId());
 
-        List<DoctorAvailability> existingSchedules =
-                availabilityRepository.findByDoctorIdAndDayOfWeekAndActiveTrue(
-                        doctor.getId(),
-                        request.getDayOfWeek());
-
-        boolean duplicateSchedule = existingSchedules.stream()
-                .anyMatch(existing ->
-                        !existing.getId().equals(availabilityId));
-
-        if (duplicateSchedule) {
-            throw new BadRequestException(
-                    "Active availability already exists for this day");
-        }
+        validateDuplicateAvailability(
+                doctor.getId(),
+                request.getDayOfWeek(),
+                availabilityId
+        );
 
         availability.setDoctor(doctor);
         availability.setDayOfWeek(request.getDayOfWeek());
@@ -140,7 +144,8 @@ public class DoctorAvailabilityServiceImpl
         availability.setEndTime(request.getEndTime());
         availability.setConsultationMode(request.getConsultationMode());
         availability.setSlotDurationMinutes(
-                request.getSlotDurationMinutes());
+                request.getSlotDurationMinutes()
+        );
 
         DoctorAvailability updatedAvailability =
                 availabilityRepository.save(availability);
@@ -148,7 +153,10 @@ public class DoctorAvailabilityServiceImpl
         return availabilityMapper.toResponse(updatedAvailability);
     }
 
-    // Deactivate availability
+    // ==========================================
+    // DEACTIVATE AVAILABILITY
+    // ==========================================
+
     @Override
     public DoctorAvailabilityResponse deactivateAvailability(
             Long availabilityId) {
@@ -156,9 +164,10 @@ public class DoctorAvailabilityServiceImpl
         DoctorAvailability availability =
                 findAvailabilityById(availabilityId);
 
-        if (!availability.getActive()) {
+        if (!Boolean.TRUE.equals(availability.getActive())) {
             throw new BadRequestException(
-                    "Doctor availability is already inactive");
+                    DoctorConstants.AVAILABILITY_ALREADY_INACTIVE
+            );
         }
 
         availability.setActive(false);
@@ -169,61 +178,149 @@ public class DoctorAvailabilityServiceImpl
         return availabilityMapper.toResponse(updatedAvailability);
     }
 
-    // Find doctor by ID
+    // ==========================================
+    // FIND DOCTOR BY ID
+    // ==========================================
+
     private Doctor findDoctorById(Long doctorId) {
 
         if (doctorId == null || doctorId <= 0) {
             throw new BadRequestException(
-                    "Valid doctor ID is required");
+                    DoctorConstants.INVALID_DOCTOR_ID
+            );
         }
 
         return doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Doctor not found with ID: " + doctorId));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                DoctorConstants.DOCTOR_NOT_FOUND
+                                        + " with ID: " + doctorId
+                        )
+                );
     }
 
-    // Find availability by ID
+    // ==========================================
+    // FIND AVAILABILITY BY ID
+    // ==========================================
+
     private DoctorAvailability findAvailabilityById(
             Long availabilityId) {
 
         if (availabilityId == null || availabilityId <= 0) {
             throw new BadRequestException(
-                    "Valid availability ID is required");
+                    DoctorConstants.INVALID_AVAILABILITY_ID
+            );
         }
 
         return availabilityRepository.findById(availabilityId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Doctor availability not found with ID: "
-                                + availabilityId));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                DoctorConstants.AVAILABILITY_NOT_FOUND
+                                        + " with ID: " + availabilityId
+                        )
+                );
     }
 
-    // Validate consultation time
+    // ==========================================
+    // VALIDATE REQUEST
+    // ==========================================
+
+    private void validateRequest(DoctorAvailabilityRequest request) {
+
+        if (request == null) {
+            throw new BadRequestException(
+                    DoctorConstants.AVAILABILITY_REQUEST_EMPTY
+            );
+        }
+
+        if (request.getDoctorId() == null
+                || request.getDoctorId() <= 0) {
+
+            throw new BadRequestException(
+                    DoctorConstants.INVALID_DOCTOR_ID
+            );
+        }
+
+        if (request.getDayOfWeek() == null) {
+            throw new BadRequestException(
+                    DoctorConstants.DAY_OF_WEEK_REQUIRED
+            );
+        }
+
+        validateTimeRange(
+                request.getStartTime(),
+                request.getEndTime()
+        );
+    }
+
+    // ==========================================
+    // VALIDATE DUPLICATE AVAILABILITY
+    // ==========================================
+
+    private void validateDuplicateAvailability(
+            Long doctorId,
+            WeekDay dayOfWeek,
+            Long excludeAvailabilityId) {
+
+        List<DoctorAvailability> existingSchedules =
+                availabilityRepository
+                        .findByDoctorIdAndDayOfWeekAndActiveTrue(
+                                doctorId,
+                                dayOfWeek
+                        );
+
+        boolean duplicateSchedule = existingSchedules.stream()
+                .anyMatch(existing ->
+                        !existing.getId().equals(excludeAvailabilityId)
+                );
+
+        if (duplicateSchedule) {
+            throw new BadRequestException(
+                    DoctorConstants.AVAILABILITY_ALREADY_EXISTS
+            );
+        }
+    }
+
+    // ==========================================
+    // VALIDATE CONSULTATION TIME
+    // ==========================================
+
     private void validateTimeRange(
-            java.time.LocalTime startTime,
-            java.time.LocalTime endTime) {
+            LocalTime startTime,
+            LocalTime endTime) {
 
         if (startTime == null || endTime == null
                 || !endTime.isAfter(startTime)) {
 
             throw new BadRequestException(
-                    "End time must be after start time");
+                    DoctorConstants.INVALID_AVAILABILITY_TIME_RANGE
+            );
         }
     }
 
-    // Convert String to WeekDay enum
+    // ==========================================
+    // CONVERT STRING TO WEEKDAY ENUM
+    // ==========================================
+
     private WeekDay parseWeekDay(String dayOfWeek) {
 
         if (dayOfWeek == null || dayOfWeek.isBlank()) {
             throw new BadRequestException(
-                    "Day of week is required");
+                    DoctorConstants.DAY_OF_WEEK_REQUIRED
+            );
         }
 
         try {
             return WeekDay.valueOf(
-                    dayOfWeek.trim().toUpperCase());
+                    dayOfWeek.trim().toUpperCase()
+            );
+
         } catch (IllegalArgumentException exception) {
+
             throw new BadRequestException(
-                    "Invalid day of week: " + dayOfWeek);
+                    DoctorConstants.INVALID_DAY_OF_WEEK
+                            + ": " + dayOfWeek
+            );
         }
     }
 }

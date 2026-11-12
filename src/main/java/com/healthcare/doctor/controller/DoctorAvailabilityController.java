@@ -1,6 +1,7 @@
 
 package com.healthcare.doctor.controller;
 
+import com.healthcare.doctor.constants.DoctorConstants;
 import com.healthcare.doctor.dto.request.DoctorAvailabilityRequest;
 import com.healthcare.doctor.dto.response.ApiResponse;
 import com.healthcare.doctor.dto.response.DoctorAvailabilityResponse;
@@ -23,7 +24,10 @@ public class DoctorAvailabilityController {
 
     private final DoctorAvailabilityService availabilityService;
 
-    // Create doctor availability
+    // ==========================================
+    // CREATE DOCTOR AVAILABILITY
+    // ==========================================
+
     @PostMapping
     public ResponseEntity<ApiResponse<DoctorAvailabilityResponse>>
     createAvailability(
@@ -34,11 +38,15 @@ public class DoctorAvailabilityController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
-                        "Doctor availability created successfully",
-                        response));
+                        DoctorConstants.AVAILABILITY_CREATED,
+                        response
+                ));
     }
 
-    // Get availability by ID
+    // ==========================================
+    // GET AVAILABILITY BY ID
+    // ==========================================
+
     @GetMapping("/{availabilityId}")
     public ResponseEntity<ApiResponse<DoctorAvailabilityResponse>>
     getAvailabilityById(
@@ -49,11 +57,16 @@ public class DoctorAvailabilityController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctor availability fetched successfully",
-                        response));
+                        DoctorConstants.AVAILABILITY_FETCHED,
+                        response
+                )
+        );
     }
 
-    // Get all active availability records for a doctor
+    // ==========================================
+    // GET AVAILABILITY BY DOCTOR ID
+    // ==========================================
+
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<ApiResponse<List<DoctorAvailabilityResponse>>>
     getAvailabilityByDoctorId(
@@ -64,11 +77,16 @@ public class DoctorAvailabilityController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctor availability list fetched successfully",
-                        response));
+                        DoctorConstants.AVAILABILITIES_FETCHED,
+                        response
+                )
+        );
     }
 
-    // Get availability by doctor and weekday
+    // ==========================================
+    // GET AVAILABILITY BY DOCTOR AND WEEKDAY
+    // ==========================================
+
     @GetMapping("/doctor/{doctorId}/day/{dayOfWeek}")
     public ResponseEntity<ApiResponse<List<DoctorAvailabilityResponse>>>
     getAvailabilityByDoctorAndDay(
@@ -77,15 +95,22 @@ public class DoctorAvailabilityController {
 
         List<DoctorAvailabilityResponse> response =
                 availabilityService.getAvailabilityByDoctorAndDay(
-                        doctorId, dayOfWeek);
+                        doctorId,
+                        dayOfWeek
+                );
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctor availability fetched successfully",
-                        response));
+                        DoctorConstants.AVAILABILITY_FETCHED,
+                        response
+                )
+        );
     }
 
-    // Update availability
+    // ==========================================
+    // UPDATE AVAILABILITY
+    // ==========================================
+
     @PutMapping("/{availabilityId}")
     public ResponseEntity<ApiResponse<DoctorAvailabilityResponse>>
     updateAvailability(
@@ -94,15 +119,22 @@ public class DoctorAvailabilityController {
 
         DoctorAvailabilityResponse response =
                 availabilityService.updateAvailability(
-                        availabilityId, request);
+                        availabilityId,
+                        request
+                );
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctor availability updated successfully",
-                        response));
+                        DoctorConstants.AVAILABILITY_UPDATED,
+                        response
+                )
+        );
     }
 
-    // Deactivate availability
+    // ==========================================
+    // DEACTIVATE AVAILABILITY
+    // ==========================================
+
     @PatchMapping("/{availabilityId}/deactivate")
     public ResponseEntity<ApiResponse<DoctorAvailabilityResponse>>
     deactivateAvailability(
@@ -110,11 +142,14 @@ public class DoctorAvailabilityController {
 
         DoctorAvailabilityResponse response =
                 availabilityService.deactivateAvailability(
-                        availabilityId);
+                        availabilityId
+                );
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctor availability deactivated successfully",
-                        response));
+                        DoctorConstants.AVAILABILITY_DEACTIVATED,
+                        response
+                )
+        );
     }
 }

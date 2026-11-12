@@ -1,14 +1,15 @@
 
 package com.healthcare.doctor.dto.request;
 
+import com.healthcare.doctor.constants.DoctorConstants;
 import com.healthcare.doctor.enums.ConsultationMode;
 import com.healthcare.doctor.enums.WeekDay;
 
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Positive;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,31 +26,40 @@ import java.time.LocalTime;
 @Builder
 public class DoctorAvailabilityRequest {
 
-    @NotNull(message = "Doctor ID is required")
+    @NotNull(message = DoctorConstants.DOCTOR_ID_REQUIRED)
+    @Positive(message = DoctorConstants.INVALID_DOCTOR_ID)
     private Long doctorId;
 
-    @NotNull(message = "Day of week is required")
+    @NotNull(message = DoctorConstants.DAY_OF_WEEK_REQUIRED)
     private WeekDay dayOfWeek;
 
-    @NotNull(message = "Start time is required")
+    @NotNull(message = DoctorConstants.START_TIME_REQUIRED)
     private LocalTime startTime;
 
-    @NotNull(message = "End time is required")
+    @NotNull(message = DoctorConstants.END_TIME_REQUIRED)
     private LocalTime endTime;
 
-    @NotNull(message = "Consultation mode is required")
+    @NotNull(message = DoctorConstants.CONSULTATION_MODE_REQUIRED)
     private ConsultationMode consultationMode;
 
-    @NotNull(message = "Slot duration is required")
-    @Min(value = 5, message = "Minimum slot duration is 5 minutes")
-    @Max(value = 240, message = "Maximum slot duration is 240 minutes")
+    @NotNull(message = DoctorConstants.SLOT_DURATION_REQUIRED)
+    @Min(
+            value = 5,
+            message = DoctorConstants.MIN_SLOT_DURATION
+    )
+    @Max(
+            value = 240,
+            message = DoctorConstants.MAX_SLOT_DURATION
+    )
     private Integer slotDurationMinutes;
 
-    @AssertTrue(message = "End time must be after start time")
+    @AssertTrue(message = DoctorConstants.INVALID_AVAILABILITY_TIME_RANGE)
     public boolean isValidTimeRange() {
+
         if (startTime == null || endTime == null) {
             return true;
         }
+
         return endTime.isAfter(startTime);
     }
 }
