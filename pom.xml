@@ -25,6 +25,7 @@
         <jjwt.version>0.12.6</jjwt.version>
         <testcontainers.version>1.21.3</testcontainers.version>
     </properties>
+
     <dependencies>
 
         <!-- Spring Web MVC -->
@@ -51,7 +52,7 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Flyway Starter -->
+        <!-- Flyway -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-flyway</artifactId>
@@ -144,6 +145,7 @@
                     <scope>runtime</scope>
                 </dependency>
 
+                <!-- Byte Buddy -->
                 <dependency>
                     <groupId>net.bytebuddy</groupId>
                     <artifactId>byte-buddy</artifactId>

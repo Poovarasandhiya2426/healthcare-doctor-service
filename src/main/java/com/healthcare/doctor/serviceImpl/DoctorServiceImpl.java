@@ -163,6 +163,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     // Get doctors by specialization
+
     @Override
     @Transactional(readOnly = true)
     public Page<DoctorSummaryResponse> getDoctorsBySpecialization(
@@ -174,12 +175,14 @@ public class DoctorServiceImpl implements DoctorService {
                     DoctorConstants.INVALID_SPECIALIZATION_ID);
         }
 
-        return doctorRepository.findBySpecializationIdAndStatus(
-                specializationId,
-                DoctorStatus.ACTIVE,
-                pageable
-        ).map(doctorMapper::toSummaryResponse);
+        return doctorRepository
+                .findBySpecialization_IdAndStatus(
+                        specializationId,
+                        DoctorStatus.ACTIVE,
+                        pageable)
+                .map(doctorMapper::toSummaryResponse);
     }
+
 
     // Get doctors by status
     @Override

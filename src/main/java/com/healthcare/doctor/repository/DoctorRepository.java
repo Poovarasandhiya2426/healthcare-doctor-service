@@ -14,8 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface DoctorRepository
-        extends JpaRepository<Doctor, Long> {
+public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
     Optional<Doctor> findByEmail(String email);
 
@@ -31,7 +30,7 @@ public interface DoctorRepository
 
     boolean existsByLicenseNumber(String licenseNumber);
 
-    Page<Doctor> findBySpecializationIdAndStatus(
+    Page<Doctor> findBySpecialization_IdAndStatus(
             Long specializationId,
             DoctorStatus status,
             Pageable pageable);
@@ -42,12 +41,9 @@ public interface DoctorRepository
 
     @Query("""
             SELECT d FROM Doctor d
-            WHERE LOWER(d.firstName)
-                LIKE LOWER(CONCAT('%', :keyword, '%'))
-               OR LOWER(d.lastName)
-                LIKE LOWER(CONCAT('%', :keyword, '%'))
-               OR LOWER(d.email)
-                LIKE LOWER(CONCAT('%', :keyword, '%'))
+            WHERE LOWER(d.firstName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            OR LOWER(d.lastName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            OR LOWER(d.email) LIKE LOWER(CONCAT('%', :keyword, '%'))
             """)
     Page<Doctor> searchDoctors(
             @Param("keyword") String keyword,

@@ -28,6 +28,8 @@ public class DoctorSummaryResponse {
 
     private Long specializationId;
 
+    private String specializationName;
+
     private Integer yearsOfExperience;
 
     private BigDecimal consultationFee;

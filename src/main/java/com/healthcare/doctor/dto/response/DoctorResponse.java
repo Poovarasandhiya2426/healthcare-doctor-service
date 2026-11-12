@@ -40,6 +40,8 @@ public class DoctorResponse {
 
     private Long specializationId;
 
+    private String specializationName;
+
     private String licenseNumber;
 
     private Integer yearsOfExperience;

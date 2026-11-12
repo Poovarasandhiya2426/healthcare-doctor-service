@@ -62,4 +62,40 @@ public final class DoctorConstants {
             "Doctor status is required";
 
 
+    // Specialization success messages
+    public static final String SPECIALIZATION_CREATED =
+            "Specialization created successfully";
+
+    public static final String SPECIALIZATION_FETCHED =
+            "Specialization fetched successfully";
+
+    public static final String SPECIALIZATIONS_FETCHED =
+            "Specializations fetched successfully";
+
+    public static final String SPECIALIZATION_UPDATED =
+            "Specialization updated successfully";
+
+    public static final String SPECIALIZATION_DEACTIVATED =
+            "Specialization deactivated successfully";
+
+    public static final String SPECIALIZATION_SEARCH_COMPLETED =
+            "Specializations search completed successfully";
+
+    // Specialization error messages
+    public static final String SPECIALIZATION_NOT_FOUND =
+            "Specialization not found";
+
+    public static final String DUPLICATE_SPECIALIZATION_NAME =
+            "Specialization name already exists";
+
+    public static final String SPECIALIZATION_ALREADY_INACTIVE =
+            "Specialization is already inactive";
+
+
+
+    public static final String SPECIALIZATION_SEARCH_KEYWORD_REQUIRED =
+            "Search keyword is required";
+
+
+
 }

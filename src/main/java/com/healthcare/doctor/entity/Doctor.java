@@ -14,6 +14,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.healthcare.doctor.entity.Specialization;
 
 @Entity
 @Table(name = "doctors")
@@ -50,8 +51,12 @@ public class Doctor {
     @Column(length = 20)
     private String gender;
 
-    @Column(name = "specialization_id")
-    private Long specializationId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "specialization_id",
+            foreignKey = @ForeignKey(name = "fk_doctor_specialization")
+    )
+    private Specialization specialization;
 
     @Column(name = "license_number", nullable = false,
             unique = true, length = 100)
