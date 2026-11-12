@@ -1,4 +1,13 @@
+
 package com.healthcare.doctor.enums;
 
-public class WeekDay {
+public enum WeekDay {
+
+    MONDAY,
+    TUESDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY,
+    SUNDAY
 }
