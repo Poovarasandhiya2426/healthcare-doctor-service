@@ -3,6 +3,7 @@ package com.healthcare.doctor.controller;
 
 import com.healthcare.doctor.dto.request.DoctorRegistrationRequest;
 import com.healthcare.doctor.dto.request.DoctorUpdateRequest;
+import com.healthcare.doctor.dto.response.ApiResponse;
 import com.healthcare.doctor.dto.response.DoctorResponse;
 import com.healthcare.doctor.dto.response.DoctorSummaryResponse;
 import com.healthcare.doctor.service.DoctorService;
@@ -26,7 +27,7 @@ public class DoctorController {
 
     // Register Doctor
     @PostMapping
-    public ResponseEntity<DoctorResponse> registerDoctor(
+    public ResponseEntity<ApiResponse<DoctorResponse>> registerDoctor(
             @Valid @RequestBody DoctorRegistrationRequest request) {
 
         DoctorResponse response =
@@ -34,85 +35,149 @@ public class DoctorController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .body(ApiResponse.success(
+                        "Doctor registered successfully",
+                        response
+                ));
     }
 
     // Get Doctor By ID
     @GetMapping("/{doctorId}")
-    public ResponseEntity<DoctorResponse> getDoctorById(
+    public ResponseEntity<ApiResponse<DoctorResponse>> getDoctorById(
             @PathVariable Long doctorId) {
 
+        DoctorResponse response =
+                doctorService.getDoctorById(doctorId);
+
         return ResponseEntity.ok(
-                doctorService.getDoctorById(doctorId));
+                ApiResponse.success(
+                        "Doctor retrieved successfully",
+                        response
+                )
+        );
     }
 
     // Get Doctor By Email
     @GetMapping("/email/{email}")
-    public ResponseEntity<DoctorResponse> getDoctorByEmail(
+    public ResponseEntity<ApiResponse<DoctorResponse>> getDoctorByEmail(
             @PathVariable String email) {
 
+        DoctorResponse response =
+                doctorService.getDoctorByEmail(email);
+
         return ResponseEntity.ok(
-                doctorService.getDoctorByEmail(email));
+                ApiResponse.success(
+                        "Doctor retrieved successfully",
+                        response
+                )
+        );
     }
 
     // Get All Doctors
     @GetMapping
-    public ResponseEntity<Page<DoctorSummaryResponse>> getAllDoctors(
+    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
+    getAllDoctors(
             @PageableDefault(size = 10, sort = "id")
             Pageable pageable) {
 
+        Page<DoctorSummaryResponse> response =
+                doctorService.getAllDoctors(pageable);
+
         return ResponseEntity.ok(
-                doctorService.getAllDoctors(pageable));
+                ApiResponse.success(
+                        "Doctors retrieved successfully",
+                        response
+                )
+        );
     }
 
     // Update Doctor
     @PutMapping("/{doctorId}")
-    public ResponseEntity<DoctorResponse> updateDoctor(
+    public ResponseEntity<ApiResponse<DoctorResponse>> updateDoctor(
             @PathVariable Long doctorId,
             @Valid @RequestBody DoctorUpdateRequest request) {
 
+        DoctorResponse response =
+                doctorService.updateDoctor(doctorId, request);
+
         return ResponseEntity.ok(
-                doctorService.updateDoctor(doctorId, request));
+                ApiResponse.success(
+                        "Doctor updated successfully",
+                        response
+                )
+        );
     }
 
     // Deactivate Doctor
     @PatchMapping("/{doctorId}/deactivate")
-    public ResponseEntity<DoctorResponse> deactivateDoctor(
+    public ResponseEntity<ApiResponse<DoctorResponse>> deactivateDoctor(
             @PathVariable Long doctorId) {
 
+        DoctorResponse response =
+                doctorService.deactivateDoctor(doctorId);
+
         return ResponseEntity.ok(
-                doctorService.deactivateDoctor(doctorId));
+                ApiResponse.success(
+                        "Doctor deactivated successfully",
+                        response
+                )
+        );
     }
 
     // Search Doctors
     @GetMapping("/search")
-    public ResponseEntity<Page<DoctorSummaryResponse>> searchDoctors(
+    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
+    searchDoctors(
             @RequestParam String keyword,
             Pageable pageable) {
 
+        Page<DoctorSummaryResponse> response =
+                doctorService.searchDoctors(keyword, pageable);
+
         return ResponseEntity.ok(
-                doctorService.searchDoctors(keyword, pageable));
+                ApiResponse.success(
+                        "Doctors search completed successfully",
+                        response
+                )
+        );
     }
 
     // Get Doctors By Specialization
     @GetMapping("/specialization/{specializationId}")
-    public ResponseEntity<Page<DoctorSummaryResponse>>
+    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
     getDoctorsBySpecialization(
             @PathVariable Long specializationId,
             Pageable pageable) {
 
-        return ResponseEntity.ok(
+        Page<DoctorSummaryResponse> response =
                 doctorService.getDoctorsBySpecialization(
-                        specializationId, pageable));
+                        specializationId,
+                        pageable
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Doctors retrieved by specialization successfully",
+                        response
+                )
+        );
     }
 
     // Get Doctors By Status
     @GetMapping("/status/{status}")
-    public ResponseEntity<Page<DoctorSummaryResponse>> getDoctorsByStatus(
+    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
+    getDoctorsByStatus(
             @PathVariable String status,
             Pageable pageable) {
 
+        Page<DoctorSummaryResponse> response =
+                doctorService.getDoctorsByStatus(status, pageable);
+
         return ResponseEntity.ok(
-                doctorService.getDoctorsByStatus(status, pageable));
+                ApiResponse.success(
+                        "Doctors retrieved by status successfully",
+                        response
+                )
+        );
     }
 }
