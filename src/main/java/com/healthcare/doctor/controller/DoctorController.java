@@ -31,8 +31,7 @@ public class DoctorController {
     public ResponseEntity<ApiResponse<DoctorResponse>> registerDoctor(
             @Valid @RequestBody DoctorRegistrationRequest request) {
 
-        DoctorResponse response =
-                doctorService.registerDoctor(request);
+        DoctorResponse response = doctorService.registerDoctor(request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
@@ -45,8 +44,7 @@ public class DoctorController {
     public ResponseEntity<ApiResponse<DoctorResponse>> getDoctorById(
             @PathVariable Long doctorId) {
 
-        DoctorResponse response =
-                doctorService.getDoctorById(doctorId);
+        DoctorResponse response = doctorService.getDoctorById(doctorId);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -59,8 +57,7 @@ public class DoctorController {
     public ResponseEntity<ApiResponse<DoctorResponse>> getDoctorByEmail(
             @PathVariable String email) {
 
-        DoctorResponse response =
-                doctorService.getDoctorByEmail(email);
+        DoctorResponse response = doctorService.getDoctorByEmail(email);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -70,8 +67,7 @@ public class DoctorController {
 
     // Get all doctors with pagination
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
-    getAllDoctors(
+    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>> getAllDoctors(
             @PageableDefault(
                     page = 0,
                     size = 10,
@@ -118,11 +114,9 @@ public class DoctorController {
 
     // Search doctors
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
-    searchDoctors(
+    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>> searchDoctors(
             @RequestParam String keyword,
-            @PageableDefault(size = 10, sort = "id")
-            Pageable pageable) {
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
 
         Page<DoctorSummaryResponse> response =
                 doctorService.searchDoctors(keyword, pageable);
@@ -135,11 +129,9 @@ public class DoctorController {
 
     // Get doctors by specialization
     @GetMapping("/specialization/{specializationId}")
-    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
-    getDoctorsBySpecialization(
+    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>> getDoctorsBySpecialization(
             @PathVariable Long specializationId,
-            @PageableDefault(size = 10, sort = "id")
-            Pageable pageable) {
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
 
         Page<DoctorSummaryResponse> response =
                 doctorService.getDoctorsBySpecialization(
@@ -153,11 +145,9 @@ public class DoctorController {
 
     // Get doctors by status
     @GetMapping("/status/{status}")
-    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>>
-    getDoctorsByStatus(
+    public ResponseEntity<ApiResponse<Page<DoctorSummaryResponse>>> getDoctorsByStatus(
             @PathVariable String status,
-            @PageableDefault(size = 10, sort = "id")
-            Pageable pageable) {
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
 
         Page<DoctorSummaryResponse> response =
                 doctorService.getDoctorsByStatus(status, pageable);

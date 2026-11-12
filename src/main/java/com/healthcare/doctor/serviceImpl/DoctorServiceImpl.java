@@ -40,8 +40,7 @@ public class DoctorServiceImpl implements DoctorService {
                     DoctorConstants.DUPLICATE_EMAIL);
         }
 
-        if (doctorRepository.existsByPhoneNumber(
-                request.getPhoneNumber())) {
+        if (doctorRepository.existsByPhoneNumber(request.getPhoneNumber())) {
             throw new DuplicateResourceException(
                     DoctorConstants.DUPLICATE_PHONE);
         }
@@ -163,7 +162,6 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     // Get doctors by specialization
-
     @Override
     @Transactional(readOnly = true)
     public Page<DoctorSummaryResponse> getDoctorsBySpecialization(
@@ -175,14 +173,12 @@ public class DoctorServiceImpl implements DoctorService {
                     DoctorConstants.INVALID_SPECIALIZATION_ID);
         }
 
-        return doctorRepository
-                .findBySpecialization_IdAndStatus(
+        return doctorRepository.findBySpecialization_IdAndStatus(
                         specializationId,
                         DoctorStatus.ACTIVE,
                         pageable)
                 .map(doctorMapper::toSummaryResponse);
     }
-
 
     // Get doctors by status
     @Override
@@ -206,8 +202,7 @@ public class DoctorServiceImpl implements DoctorService {
                     DoctorConstants.INVALID_DOCTOR_STATUS);
         }
 
-        return doctorRepository.findByStatus(
-                        doctorStatus, pageable)
+        return doctorRepository.findByStatus(doctorStatus, pageable)
                 .map(doctorMapper::toSummaryResponse);
     }
 
