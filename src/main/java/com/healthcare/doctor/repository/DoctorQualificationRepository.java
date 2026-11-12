@@ -26,4 +26,12 @@ public interface DoctorQualificationRepository
     );
 
     long countByDoctorId(Long doctorId);
+
+
+    boolean existsByDoctorIdAndDegreeIgnoreCaseAndUniversityIgnoreCaseAndIdNot(
+            Long doctorId,
+            String degree,
+            String university,
+            Long qualificationId
+    );
 }

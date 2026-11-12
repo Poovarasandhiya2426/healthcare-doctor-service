@@ -5,10 +5,15 @@ import com.healthcare.doctor.dto.request.DoctorQualificationRequest;
 import com.healthcare.doctor.dto.response.DoctorQualificationResponse;
 import com.healthcare.doctor.entity.Doctor;
 import com.healthcare.doctor.entity.DoctorQualification;
+
 import org.springframework.stereotype.Component;
 
 @Component
 public class DoctorQualificationMapper {
+
+    // ==========================================
+    // REQUEST TO ENTITY
+    // ==========================================
 
     public DoctorQualification toEntity(
             DoctorQualificationRequest request,
@@ -19,9 +24,15 @@ public class DoctorQualificationMapper {
                 .degree(request.getDegree().trim())
                 .university(request.getUniversity().trim())
                 .yearOfCompletion(request.getYearOfCompletion())
-                .certificateUrl(request.getCertificateUrl())
+                .certificateUrl(normalizeCertificateUrl(
+                        request.getCertificateUrl()
+                ))
                 .build();
     }
+
+    // ==========================================
+    // UPDATE ENTITY
+    // ==========================================
 
     public void updateEntity(
             DoctorQualification qualification,
@@ -30,8 +41,14 @@ public class DoctorQualificationMapper {
         qualification.setDegree(request.getDegree().trim());
         qualification.setUniversity(request.getUniversity().trim());
         qualification.setYearOfCompletion(request.getYearOfCompletion());
-        qualification.setCertificateUrl(request.getCertificateUrl());
+        qualification.setCertificateUrl(
+                normalizeCertificateUrl(request.getCertificateUrl())
+        );
     }
+
+    // ==========================================
+    // ENTITY TO RESPONSE
+    // ==========================================
 
     public DoctorQualificationResponse toResponse(
             DoctorQualification qualification) {
@@ -52,5 +69,18 @@ public class DoctorQualificationMapper {
                 .createdAt(qualification.getCreatedAt())
                 .updatedAt(qualification.getUpdatedAt())
                 .build();
+    }
+
+    // ==========================================
+    // NORMALIZE CERTIFICATE URL
+    // ==========================================
+
+    private String normalizeCertificateUrl(String certificateUrl) {
+
+        if (certificateUrl == null || certificateUrl.isBlank()) {
+            return null;
+        }
+
+        return certificateUrl.trim();
     }
 }

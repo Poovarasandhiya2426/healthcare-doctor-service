@@ -2,22 +2,16 @@
 package com.healthcare.doctor.serviceImpl;
 
 import com.healthcare.doctor.constants.DoctorConstants;
-
 import com.healthcare.doctor.dto.request.DoctorQualificationRequest;
 import com.healthcare.doctor.dto.response.DoctorQualificationResponse;
-
 import com.healthcare.doctor.entity.Doctor;
 import com.healthcare.doctor.entity.DoctorQualification;
-
 import com.healthcare.doctor.exception.BadRequestException;
 import com.healthcare.doctor.exception.DuplicateResourceException;
 import com.healthcare.doctor.exception.ResourceNotFoundException;
-
 import com.healthcare.doctor.mapper.DoctorQualificationMapper;
-
 import com.healthcare.doctor.repository.DoctorQualificationRepository;
 import com.healthcare.doctor.repository.DoctorRepository;
-
 import com.healthcare.doctor.service.DoctorQualificationService;
 
 import lombok.RequiredArgsConstructor;
@@ -35,9 +29,7 @@ public class DoctorQualificationServiceImpl
         implements DoctorQualificationService {
 
     private final DoctorQualificationRepository qualificationRepository;
-
     private final DoctorRepository doctorRepository;
-
     private final DoctorQualificationMapper qualificationMapper;
 
     // ==========================================
@@ -92,15 +84,9 @@ public class DoctorQualificationServiceImpl
     public List<DoctorQualificationResponse> getQualificationsByDoctorId(
             Long doctorId) {
 
-        if (doctorId == null || doctorId <= 0) {
-            throw new BadRequestException(
-                    DoctorConstants.INVALID_DOCTOR_ID
-            );
-        }
+        Doctor doctor = findDoctorById(doctorId);
 
-        findDoctorById(doctorId);
-
-        return qualificationRepository.findByDoctorId(doctorId)
+        return qualificationRepository.findByDoctorId(doctor.getId())
                 .stream()
                 .map(qualificationMapper::toResponse)
                 .toList();
@@ -124,7 +110,6 @@ public class DoctorQualificationServiceImpl
                 qualification.getDoctor().getId();
 
         if (!existingDoctorId.equals(request.getDoctorId())) {
-
             throw new BadRequestException(
                     DoctorConstants.QUALIFICATION_MOVE_NOT_ALLOWED
             );
@@ -173,7 +158,8 @@ public class DoctorQualificationServiceImpl
         return doctorRepository.findById(doctorId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Doctor not found with ID: " + doctorId
+                                DoctorConstants.DOCTOR_NOT_FOUND
+                                        + " with ID: " + doctorId
                         )
                 );
     }
@@ -221,6 +207,22 @@ public class DoctorQualificationServiceImpl
             );
         }
 
+        if (request.getDegree() == null
+                || request.getDegree().isBlank()) {
+
+            throw new BadRequestException(
+                    DoctorConstants.DEGREE_REQUIRED
+            );
+        }
+
+        if (request.getUniversity() == null
+                || request.getUniversity().isBlank()) {
+
+            throw new BadRequestException(
+                    DoctorConstants.UNIVERSITY_REQUIRED
+            );
+        }
+
         if (request.getYearOfCompletion() == null
                 || request.getYearOfCompletion() < 1900
                 || request.getYearOfCompletion() > Year.now().getValue()) {
@@ -241,15 +243,20 @@ public class DoctorQualificationServiceImpl
             String university,
             Long excludeQualificationId) {
 
+        String normalizedDegree = degree.trim();
+        String normalizedUniversity = university.trim();
+
         boolean duplicate = qualificationRepository
                 .findByDoctorId(doctorId)
                 .stream()
                 .anyMatch(existing ->
                         !existing.getId().equals(excludeQualificationId)
-                                && existing.getDegree()
-                                .equalsIgnoreCase(degree.trim())
-                                && existing.getUniversity()
-                                .equalsIgnoreCase(university.trim())
+                                && existing.getDegree() != null
+                                && existing.getUniversity() != null
+                                && existing.getDegree().trim()
+                                .equalsIgnoreCase(normalizedDegree)
+                                && existing.getUniversity().trim()
+                                .equalsIgnoreCase(normalizedUniversity)
                 );
 
         if (duplicate) {

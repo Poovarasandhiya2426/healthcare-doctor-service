@@ -240,6 +240,30 @@ public final class DoctorConstants {
     public static final String SPECIALIZATION_DESCRIPTION_MAX_LENGTH =
             "Description cannot exceed 500 characters";
 
+    public static final String DEGREE_REQUIRED =
+            "Qualification degree is required";
+
+    public static final String UNIVERSITY_REQUIRED =
+            "University name is required";
+
+    // Doctor Qualification Validation Messages
+
+    public static final String DOCTOR_ID_REQUIRED =
+            "Doctor ID is required";
+
+
+    public static final String DEGREE_MAX_LENGTH =
+            "Degree must not exceed 150 characters";
+
+    public static final String UNIVERSITY_MAX_LENGTH =
+            "University must not exceed 200 characters";
+
+    public static final String COMPLETION_YEAR_REQUIRED =
+            "Year of completion is required";
+
+    public static final String CERTIFICATE_URL_MAX_LENGTH =
+            "Certificate URL must not exceed 500 characters";
+
 
 }
 
