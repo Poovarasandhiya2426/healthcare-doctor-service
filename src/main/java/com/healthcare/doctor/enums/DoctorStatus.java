@@ -1,4 +1,8 @@
+
 package com.healthcare.doctor.enums;
 
-public class DoctorStatus {
+public enum DoctorStatus {
+
+    ACTIVE,
+    INACTIVE
 }

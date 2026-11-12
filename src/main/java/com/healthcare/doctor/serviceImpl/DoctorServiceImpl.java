@@ -7,6 +7,7 @@ import com.healthcare.doctor.dto.request.DoctorUpdateRequest;
 import com.healthcare.doctor.dto.response.DoctorResponse;
 import com.healthcare.doctor.dto.response.DoctorSummaryResponse;
 import com.healthcare.doctor.entity.Doctor;
+import com.healthcare.doctor.enums.DoctorStatus;
 import com.healthcare.doctor.exception.BadRequestException;
 import com.healthcare.doctor.exception.DuplicateResourceException;
 import com.healthcare.doctor.exception.ResourceNotFoundException;
@@ -29,7 +30,7 @@ public class DoctorServiceImpl implements DoctorService {
     private final DoctorRepository doctorRepository;
     private final DoctorMapper doctorMapper;
 
-    // Register a new doctor
+    // Register doctor
     @Override
     public DoctorResponse registerDoctor(
             DoctorRegistrationRequest request) {
@@ -54,7 +55,7 @@ public class DoctorServiceImpl implements DoctorService {
         if (doctorRepository.findByIdentityUserId(
                 request.getIdentityUserId()).isPresent()) {
             throw new DuplicateResourceException(
-                    "Identity user is already linked to a doctor");
+                    DoctorConstants.IDENTITY_USER_ALREADY_LINKED);
         }
 
         Doctor doctor = doctorMapper.toEntity(request);
@@ -87,7 +88,7 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorMapper.toResponse(doctor);
     }
 
-    // Get all doctors with pagination
+    // Get all doctors
     @Override
     @Transactional(readOnly = true)
     public Page<DoctorSummaryResponse> getAllDoctors(
@@ -97,7 +98,7 @@ public class DoctorServiceImpl implements DoctorService {
                 .map(doctorMapper::toSummaryResponse);
     }
 
-    // Update doctor details
+    // Update doctor
     @Override
     public DoctorResponse updateDoctor(
             Long doctorId,
@@ -132,14 +133,12 @@ public class DoctorServiceImpl implements DoctorService {
 
         Doctor doctor = findDoctorById(doctorId);
 
-        if (DoctorConstants.STATUS_INACTIVE.equalsIgnoreCase(
-                doctor.getStatus())) {
-
+        if (doctor.getStatus() == DoctorStatus.INACTIVE) {
             throw new BadRequestException(
                     DoctorConstants.DOCTOR_ALREADY_INACTIVE);
         }
 
-        doctor.setStatus(DoctorConstants.STATUS_INACTIVE);
+        doctor.setStatus(DoctorStatus.INACTIVE);
 
         Doctor updatedDoctor = doctorRepository.save(doctor);
 
@@ -172,12 +171,12 @@ public class DoctorServiceImpl implements DoctorService {
 
         if (specializationId == null || specializationId <= 0) {
             throw new BadRequestException(
-                    "Valid specialization ID is required");
+                    DoctorConstants.INVALID_SPECIALIZATION_ID);
         }
 
         return doctorRepository.findBySpecializationIdAndStatus(
                 specializationId,
-                DoctorConstants.STATUS_ACTIVE,
+                DoctorStatus.ACTIVE,
                 pageable
         ).map(doctorMapper::toSummaryResponse);
     }
@@ -191,25 +190,25 @@ public class DoctorServiceImpl implements DoctorService {
 
         if (status == null || status.isBlank()) {
             throw new BadRequestException(
-                    "Doctor status is required");
+                    DoctorConstants.DOCTOR_STATUS_REQUIRED);
         }
 
-        String normalizedStatus = status.trim().toUpperCase();
+        DoctorStatus doctorStatus;
 
-        if (!normalizedStatus.equals(DoctorConstants.STATUS_ACTIVE)
-                && !normalizedStatus.equals(
-                DoctorConstants.STATUS_INACTIVE)) {
-
+        try {
+            doctorStatus = DoctorStatus.valueOf(
+                    status.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
             throw new BadRequestException(
                     DoctorConstants.INVALID_DOCTOR_STATUS);
         }
 
         return doctorRepository.findByStatus(
-                        normalizedStatus, pageable)
+                        doctorStatus, pageable)
                 .map(doctorMapper::toSummaryResponse);
     }
 
-    // Common method to find doctor by ID
+    // Find doctor by ID
     private Doctor findDoctorById(Long doctorId) {
 
         if (doctorId == null || doctorId <= 0) {

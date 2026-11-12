@@ -1,7 +1,13 @@
 
 package com.healthcare.doctor.dto.response;
 
-import lombok.*;
+import com.healthcare.doctor.enums.DoctorStatus;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -44,7 +50,7 @@ public class DoctorResponse {
 
     private String biography;
 
-    private String status;
+    private DoctorStatus status;
 
     private LocalDateTime createdAt;
 

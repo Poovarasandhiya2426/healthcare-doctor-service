@@ -60,4 +60,6 @@ public final class DoctorConstants {
 
     public static final String DOCTOR_STATUS_REQUIRED =
             "Doctor status is required";
+
+
 }

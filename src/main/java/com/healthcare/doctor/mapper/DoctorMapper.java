@@ -6,13 +6,14 @@ import com.healthcare.doctor.dto.request.DoctorUpdateRequest;
 import com.healthcare.doctor.dto.response.DoctorResponse;
 import com.healthcare.doctor.dto.response.DoctorSummaryResponse;
 import com.healthcare.doctor.entity.Doctor;
+import com.healthcare.doctor.enums.DoctorStatus;
 
 import org.springframework.stereotype.Component;
 
 @Component
 public class DoctorMapper {
 
-    // Registration Request DTO to Entity
+    // Registration request to entity
     public Doctor toEntity(DoctorRegistrationRequest request) {
 
         return Doctor.builder()
@@ -29,11 +30,11 @@ public class DoctorMapper {
                 .consultationFee(request.getConsultationFee())
                 .profileImageUrl(request.getProfileImageUrl())
                 .biography(request.getBiography())
-                .status("ACTIVE")
+                .status(DoctorStatus.ACTIVE)
                 .build();
     }
 
-    // Update Request DTO to Existing Entity
+    // Update existing doctor entity
     public void updateEntity(
             DoctorUpdateRequest request,
             Doctor doctor) {
@@ -51,18 +52,17 @@ public class DoctorMapper {
         doctor.setBiography(request.getBiography());
     }
 
-    // Entity to Doctor Response DTO
+    // Entity to full response
     public DoctorResponse toResponse(Doctor doctor) {
-
-        String fullName = doctor.getFirstName() + " "
-                + doctor.getLastName();
 
         return DoctorResponse.builder()
                 .id(doctor.getId())
                 .identityUserId(doctor.getIdentityUserId())
                 .firstName(doctor.getFirstName())
                 .lastName(doctor.getLastName())
-                .fullName(fullName)
+                .fullName(
+                        doctor.getFirstName() + " "
+                                + doctor.getLastName())
                 .email(doctor.getEmail())
                 .phoneNumber(doctor.getPhoneNumber())
                 .dateOfBirth(doctor.getDateOfBirth())
@@ -79,15 +79,14 @@ public class DoctorMapper {
                 .build();
     }
 
-    // Entity to Summary Response DTO
+    // Entity to summary response
     public DoctorSummaryResponse toSummaryResponse(Doctor doctor) {
-
-        String fullName = doctor.getFirstName() + " "
-                + doctor.getLastName();
 
         return DoctorSummaryResponse.builder()
                 .id(doctor.getId())
-                .fullName(fullName)
+                .fullName(
+                        doctor.getFirstName() + " "
+                                + doctor.getLastName())
                 .email(doctor.getEmail())
                 .phoneNumber(doctor.getPhoneNumber())
                 .specializationId(doctor.getSpecializationId())

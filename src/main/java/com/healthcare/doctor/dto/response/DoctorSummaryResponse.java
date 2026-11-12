@@ -1,7 +1,13 @@
 
 package com.healthcare.doctor.dto.response;
 
-import lombok.*;
+import com.healthcare.doctor.enums.DoctorStatus;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -26,5 +32,5 @@ public class DoctorSummaryResponse {
 
     private BigDecimal consultationFee;
 
-    private String status;
+    private DoctorStatus status;
 }

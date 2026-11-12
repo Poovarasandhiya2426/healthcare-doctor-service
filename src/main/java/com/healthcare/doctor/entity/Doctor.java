@@ -1,7 +1,10 @@
 
 package com.healthcare.doctor.entity;
 
+import com.healthcare.doctor.enums.DoctorStatus;
+
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -66,13 +69,16 @@ public class Doctor {
     @Column(columnDefinition = "TEXT")
     private String biography;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default
-    private String status = "ACTIVE";
+    private DoctorStatus status = DoctorStatus.ACTIVE;
 
-    @Column(name = "created_at", insertable = false, updatable = false)
+    @Column(name = "created_at",
+            insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", insertable = false, updatable = false)
+    @Column(name = "updated_at",
+            insertable = false, updatable = false)
     private LocalDateTime updatedAt;
 }
