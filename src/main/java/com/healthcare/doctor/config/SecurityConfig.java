@@ -2,9 +2,7 @@
 package com.healthcare.doctor.config;
 
 import com.healthcare.doctor.security.JwtAuthenticationFilter;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,121 +20,159 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+            throws Exception {
 
         http
+                // Disable CSRF
                 .csrf(csrf -> csrf.disable())
 
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS
-                        )
+                // Stateless session
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
+                // Authorization rules
                 .authorizeHttpRequests(auth -> auth
 
-                        // OPTIONS requests
-                        .requestMatchers(
-                                HttpMethod.OPTIONS, "/**"
-                        ).permitAll()
+                        // Allow OPTIONS requests
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // Public actuator endpoints
-                        .requestMatchers(
-                                "/actuator/health",
-                                "/actuator/info"
-                        ).permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/info")
+                        .permitAll()
 
-                        // Doctor registration - ADMIN only
-                        .requestMatchers(
-                                HttpMethod.POST, "/api/doctors"
-                        ).hasAuthority("ROLE_ADMIN")
+                        // =====================================
+                        // DOCTOR APIs
+                        // =====================================
 
-                        // Doctor update - ADMIN only
-                        .requestMatchers(
-                                HttpMethod.PUT, "/api/doctors/**"
-                        ).hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/doctors")
+                        .hasAuthority("ROLE_ADMIN")
 
-                        // Doctor deactivation - ADMIN only
+                        .requestMatchers(HttpMethod.PUT, "/api/doctors/**")
+                        .hasAuthority("ROLE_ADMIN")
+
+                        .requestMatchers(HttpMethod.PATCH, "/api/doctors/*/deactivate")
+                        .hasAuthority("ROLE_ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/doctors/**")
+                        .hasAnyAuthority(
+                                "ROLE_ADMIN",
+                                "ROLE_DOCTOR",
+                                "ROLE_RECEPTIONIST"
+                        )
+
+                        // =====================================
+                        // SPECIALIZATION APIs
+                        // =====================================
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/specializations"
+                        )
+                        .hasAuthority("ROLE_ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/specializations/**"
+                        )
+                        .hasAuthority("ROLE_ADMIN")
+
                         .requestMatchers(
                                 HttpMethod.PATCH,
-                                "/api/doctors/*/deactivate"
-                        ).hasAuthority("ROLE_ADMIN")
+                                "/api/specializations/**"
+                        )
+                        .hasAuthority("ROLE_ADMIN")
 
-                        // Doctor read operations
                         .requestMatchers(
-                                HttpMethod.GET, "/api/doctors/**"
-                        ).hasAnyAuthority(
+                                HttpMethod.GET,
+                                "/api/specializations/**"
+                        )
+                        .hasAnyAuthority(
                                 "ROLE_ADMIN",
                                 "ROLE_DOCTOR",
                                 "ROLE_RECEPTIONIST"
                         )
 
-                        // Specialization creation - ADMIN only
-                        .requestMatchers(
-                                HttpMethod.POST, "/api/specializations"
-                        ).hasAuthority("ROLE_ADMIN")
+                        // =====================================
+                        // DOCTOR AVAILABILITY APIs
+                        // =====================================
 
-                        // Specialization update - ADMIN only
-                        .requestMatchers(
-                                HttpMethod.PUT, "/api/specializations/**"
-                        ).hasAuthority("ROLE_ADMIN")
-
-                        // Specialization deactivation - ADMIN only
-                        .requestMatchers(
-                                HttpMethod.PATCH, "/api/specializations/**"
-                        ).hasAuthority("ROLE_ADMIN")
-
-                        // Specialization read operations
-                        .requestMatchers(
-                                HttpMethod.GET, "/api/specializations/**"
-                        ).hasAnyAuthority(
-                                "ROLE_ADMIN",
-                                "ROLE_DOCTOR",
-                                "ROLE_RECEPTIONIST"
-                        )
-
-                        // Availability creation - ADMIN or DOCTOR
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/doctor-availability/**"
-                        ).hasAnyAuthority(
-                                "ROLE_ADMIN",
-                                "ROLE_DOCTOR"
                         )
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
 
-                        // Availability update - ADMIN or DOCTOR
                         .requestMatchers(
                                 HttpMethod.PUT,
                                 "/api/doctor-availability/**"
-                        ).hasAnyAuthority(
-                                "ROLE_ADMIN",
-                                "ROLE_DOCTOR"
                         )
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
 
-                        // Availability deactivation - ADMIN or DOCTOR
                         .requestMatchers(
                                 HttpMethod.PATCH,
                                 "/api/doctor-availability/**"
-                        ).hasAnyAuthority(
-                                "ROLE_ADMIN",
-                                "ROLE_DOCTOR"
                         )
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
 
-                        // Availability read operations
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/doctor-availability/**"
+                        )
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
+
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/doctor-availability/**"
-                        ).hasAnyAuthority(
+                        )
+                        .hasAnyAuthority(
                                 "ROLE_ADMIN",
                                 "ROLE_DOCTOR",
                                 "ROLE_RECEPTIONIST"
                         )
 
-                        // All remaining requests require authentication
+                        // =====================================
+                        // DOCTOR QUALIFICATION APIs
+                        // =====================================
+
+                        // Create qualification - ADMIN only
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/doctor-qualifications"
+                        )
+                        .hasAuthority("ROLE_ADMIN")
+
+                        // Update qualification - ADMIN only
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/doctor-qualifications/**"
+                        )
+                        .hasAuthority("ROLE_ADMIN")
+
+                        // Delete qualification - ADMIN only
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/doctor-qualifications/**"
+                        )
+                        .hasAuthority("ROLE_ADMIN")
+
+                        // Read qualification - ADMIN, DOCTOR, RECEPTIONIST
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/doctor-qualifications/**"
+                        )
+                        .hasAnyAuthority(
+                                "ROLE_ADMIN",
+                                "ROLE_DOCTOR",
+                                "ROLE_RECEPTIONIST"
+                        )
+
+                        // All remaining APIs require authentication
                         .anyRequest().authenticated()
                 )
 
+                // Add JWT filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

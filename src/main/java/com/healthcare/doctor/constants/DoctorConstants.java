@@ -102,5 +102,40 @@ public final class DoctorConstants {
     public static final String ROLE_RECEPTIONIST = "ROLE_RECEPTIONIST";
 
 
+        // Doctor Qualification
+        public static final String QUALIFICATION_CREATED =
+                "Doctor qualification created successfully";
 
-}
+        public static final String QUALIFICATION_FETCHED =
+                "Doctor qualification fetched successfully";
+
+        public static final String QUALIFICATION_UPDATED =
+                "Doctor qualification updated successfully";
+
+        public static final String QUALIFICATION_DELETED =
+                "Doctor qualification deleted successfully";
+
+        public static final String QUALIFICATION_NOT_FOUND =
+                "Doctor qualification not found";
+
+        public static final String DUPLICATE_QUALIFICATION =
+                "This qualification already exists for the doctor";
+
+        public static final String INVALID_QUALIFICATION_ID =
+                "Invalid qualification ID";
+
+        public static final String INVALID_COMPLETION_YEAR =
+                "Invalid year of completion";
+
+        public static final String QUALIFICATION_MOVE_NOT_ALLOWED =
+                "Qualification cannot be moved to another doctor";
+
+        public static final String QUALIFICATIONS_FETCHED =
+            "Doctor qualifications fetched successfully";
+
+    public static final String QUALIFICATION_REQUEST_EMPTY =
+            "Qualification request cannot be empty";
+
+
+    }
+
