@@ -31,43 +31,65 @@ public class SecurityConfig {
                 throws Exception {
 
                 http
+                        // Disable CSRF for stateless REST APIs
                         .csrf(csrf -> csrf.disable())
 
+                        // Stateless session management
                         .sessionManagement(session -> session
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                         )
 
-                        // Authentication and authorization error handling
+                        // Authentication and authorization exception handling
                         .exceptionHandling(exception -> exception
                                 .authenticationEntryPoint(authenticationEntryPoint)
                                 .accessDeniedHandler(accessDeniedHandler)
                         )
 
+                        // Authorization rules
                         .authorizeHttpRequests(auth -> auth
 
+                                // Allow OPTIONS requests
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+                                // Public actuator endpoints
                                 .requestMatchers(
                                         "/actuator/health",
                                         "/actuator/info"
                                 ).permitAll()
 
+                                // Swagger and OpenAPI endpoints
+                                .requestMatchers(
+                                        "/swagger-ui.html",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**"
+                                ).permitAll()
+
+                                // =====================================
                                 // DOCTOR APIs
+                                // =====================================
+
+                                // Register doctor - ADMIN only
                                 .requestMatchers(
                                         HttpMethod.POST,
                                         "/api/doctors"
                                 ).hasAuthority("ROLE_ADMIN")
 
+                                // Update doctor - ADMIN or DOCTOR
                                 .requestMatchers(
                                         HttpMethod.PUT,
                                         "/api/doctors/**"
-                                ).hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
+                                ).hasAnyAuthority(
+                                        "ROLE_ADMIN",
+                                        "ROLE_DOCTOR"
+                                )
 
+                                // Deactivate doctor - ADMIN only
                                 .requestMatchers(
                                         HttpMethod.PATCH,
                                         "/api/doctors/*/deactivate"
                                 ).hasAuthority("ROLE_ADMIN")
 
+                                // Read doctor details
                                 .requestMatchers(
                                         HttpMethod.GET,
                                         "/api/doctors/**"
@@ -77,7 +99,10 @@ public class SecurityConfig {
                                         "ROLE_RECEPTIONIST"
                                 )
 
+                                // =====================================
                                 // SPECIALIZATION APIs
+                                // =====================================
+
                                 .requestMatchers(
                                         HttpMethod.POST,
                                         "/api/specializations"
@@ -107,21 +132,33 @@ public class SecurityConfig {
                                         "ROLE_RECEPTIONIST"
                                 )
 
+                                // =====================================
                                 // DOCTOR AVAILABILITY APIs
+                                // =====================================
+
                                 .requestMatchers(
                                         HttpMethod.POST,
                                         "/api/doctor-availability/**"
-                                ).hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
+                                ).hasAnyAuthority(
+                                        "ROLE_ADMIN",
+                                        "ROLE_DOCTOR"
+                                )
 
                                 .requestMatchers(
                                         HttpMethod.PUT,
                                         "/api/doctor-availability/**"
-                                ).hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
+                                ).hasAnyAuthority(
+                                        "ROLE_ADMIN",
+                                        "ROLE_DOCTOR"
+                                )
 
                                 .requestMatchers(
                                         HttpMethod.PATCH,
                                         "/api/doctor-availability/**"
-                                ).hasAnyAuthority("ROLE_ADMIN", "ROLE_DOCTOR")
+                                ).hasAnyAuthority(
+                                        "ROLE_ADMIN",
+                                        "ROLE_DOCTOR"
+                                )
 
                                 .requestMatchers(
                                         HttpMethod.DELETE,
@@ -137,7 +174,10 @@ public class SecurityConfig {
                                         "ROLE_RECEPTIONIST"
                                 )
 
+                                // =====================================
                                 // DOCTOR QUALIFICATION APIs
+                                // =====================================
+
                                 .requestMatchers(
                                         HttpMethod.POST,
                                         "/api/doctor-qualifications"
@@ -162,7 +202,10 @@ public class SecurityConfig {
                                         "ROLE_RECEPTIONIST"
                                 )
 
+                                // =====================================
                                 // DOCTOR HOSPITAL MAPPING APIs
+                                // =====================================
+
                                 .requestMatchers(
                                         HttpMethod.POST,
                                         "/api/doctor-hospitals"
@@ -192,7 +235,7 @@ public class SecurityConfig {
                                         "ROLE_RECEPTIONIST"
                                 )
 
-                                // Deny every unmatched endpoint
+                                // Deny all unmatched endpoints
                                 .anyRequest().denyAll()
                         )
 
